@@ -8,20 +8,23 @@ import { useCart, cartKey } from '@/components/CartContext';
 import { formatINR } from '@/lib/utils';
 import { INDIAN_STATES } from '@/lib/indianStates';
 
-// Design tokens — keep in sync with the homepage, CartPage, ProductPage and Footer.
-//   Primary    #C2185B  savings / free shipping, selected option, button hover
-//   Secondary  #D4A017  thin divider (decorative only)
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, CartPage, ProductPage and Footer.
+//   Primary    #D4A52A  selected option, button hover, focus
+//   Gold deep  #9A7414  savings / free shipping text (darker for readability)
+//   Secondary  #D4A52A  thin divider (decorative only)
 //   Background #FFFFFF  pure white page and cards
-//   Text       #2D1028  headings + body, dark buttons
-//   Accent     #F8D7E3  banner wash, focus ring
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #111111  headings + body, dark buttons
+//   Accent     #F6E7B8  banner wash, focus ring
+const PRIMARY = '#D4A52A';
+const GOLD_DEEP = '#9A7414';
+const GOLD = '#D4A52A';
+const INK = '#111111';
+const ACCENT = '#F6E7B8';
 const PAPER = '#FFFFFF';
 
-const INK_SOFT = 'rgba(45, 16, 40, 0.72)';
-const LINE = 'rgba(45, 16, 40, 0.12)';
+const INK_SOFT = 'rgba(17, 17, 17, 0.72)';
+const LINE = 'rgba(17, 17, 17, 0.12)';
 const FONT_SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 
 // Rounding scale: summary card 24px · banner + payment option 16px · inputs and buttons fully round.
@@ -29,9 +32,9 @@ const R_CARD = '24px';
 const R_MD = '16px';
 
 const inputClass =
-  'w-full text-sm font-medium outline-none transition-all px-5 py-3 bg-white text-[#2D1028] ' +
-  'border border-[#2D1028]/20 rounded-full placeholder:text-[#2D1028]/50 placeholder:font-medium ' +
-  'focus:border-[#C2185B] focus:ring-4 focus:ring-[#F8D7E3]';
+  'w-full text-sm font-medium outline-none transition-all px-5 py-3 bg-white text-[#111111] ' +
+  'border border-[#111111]/20 rounded-full placeholder:text-[#111111]/50 placeholder:font-medium ' +
+  'focus:border-[#D4A52A] focus:ring-4 focus:ring-[#F6E7B8]';
 
 const sectionHeadClass = 'text-lg font-bold mb-4';
 
@@ -227,10 +230,10 @@ export default function CheckoutPage() {
           key: orderData.keyId,
           amount: orderData.order.amount,
           currency: 'INR',
-          name: 'Aara Creation',
+          name: 'SS Trendy Creation',
           order_id: orderData.order.id,
           prefill: { name: form.name, contact: form.phone, email: form.email },
-          theme: { color: PRIMARY },
+          theme: { color: INK },
           handler: async function (response) {
             // Fast path — if this fails or never runs, the webhook creates
             // the same order server-side. /api/orders is idempotent on
@@ -315,7 +318,7 @@ export default function CheckoutPage() {
           className="text-sm font-medium py-3 px-5 mb-8"
           style={{ background: ACCENT, color: INK, borderRadius: R_MD }}
         >
-          Add <strong style={{ color: PRIMARY }}>{formatINR(amountToFreeShipping)}</strong> more to get{' '}
+          Add <strong>{formatINR(amountToFreeShipping)}</strong> more to get{' '}
           <strong>free shipping</strong>
         </div>
       )}
@@ -343,11 +346,11 @@ export default function CheckoutPage() {
                 autoComplete="address-level1"
                 value={form.state}
                 onChange={(e) => update('state', e.target.value)}
-                className={`${inputClass} ${form.state ? '' : 'text-[#2D1028]/50'}`}
+                className={`${inputClass} ${form.state ? '' : 'text-[#111111]/50'}`}
               >
                 <option value="">State *</option>
                 {INDIAN_STATES.map((s) => (
-                  <option key={s} value={s} className="text-[#2D1028]">{s}</option>
+                  <option key={s} value={s} className="text-[#111111]">{s}</option>
                 ))}
               </select>
             </div>
@@ -378,7 +381,7 @@ export default function CheckoutPage() {
             background: PAPER,
             border: `1px solid ${LINE}`,
             borderRadius: R_CARD,
-            boxShadow: '0 18px 40px rgba(45, 16, 40, 0.07)',
+            boxShadow: '0 18px 40px rgba(17, 17, 17, 0.07)',
           }}
         >
           <h2 className={sectionHeadClass} style={{ fontFamily: FONT_SERIF, color: INK }}>Order summary</h2>
@@ -404,7 +407,7 @@ export default function CheckoutPage() {
             />
             <button
               onClick={applyCoupon}
-              className="px-5 text-sm font-bold shrink-0 rounded-full transition-colors hover:bg-[#F8D7E3]"
+              className="px-5 text-sm font-bold shrink-0 rounded-full transition-colors hover:bg-[#F6E7B8]"
               style={{ border: `1px solid ${PRIMARY}`, color: INK, background: PAPER }}
             >
               Apply
@@ -419,7 +422,7 @@ export default function CheckoutPage() {
               <span>{formatINR(subtotal)}</span>
             </div>
             {discount > 0 && (
-              <div className="flex justify-between font-bold" style={{ color: PRIMARY }}>
+              <div className="flex justify-between font-bold" style={{ color: GOLD_DEEP }}>
                 <span>Discount</span>
                 <span>−{formatINR(discount)}</span>
               </div>
@@ -430,7 +433,7 @@ export default function CheckoutPage() {
                 {shippingLoading
                   ? <span style={{ opacity: 0.6 }}>Calculating…</span>
                   : shipping === 0
-                    ? <span style={{ color: PRIMARY, fontWeight: 700 }}>Free</span>
+                    ? <span style={{ color: GOLD_DEEP, fontWeight: 700 }}>Free</span>
                     : shipping !== null
                       ? formatINR(shipping)
                       : <span style={{ opacity: 0.6 }}>—</span>
@@ -471,11 +474,11 @@ export default function CheckoutPage() {
             onClick={placeOrder}
             disabled={placeOrderDisabled}
             className="w-full mt-6 py-3.5 text-sm font-bold rounded-full border transition-all
-                       bg-[#2D1028] text-white border-[#2D1028]
-                       hover:bg-[#C2185B] hover:border-[#C2185B] hover:shadow-[0_10px_24px_rgba(194,24,91,0.25)]
+                       bg-[#111111] text-white border-[#111111]
+                       hover:bg-[#D4A52A] hover:border-[#D4A52A] hover:text-[#111111] hover:shadow-[0_10px_24px_rgba(212,165,42,0.35)]
                        active:scale-[0.98]
-                       disabled:bg-[#2D1028]/10 disabled:border-[#2D1028]/10 disabled:text-[#2D1028]/50 disabled:shadow-none disabled:cursor-not-allowed
-                       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2185B]"
+                       disabled:bg-[#111111]/10 disabled:border-[#111111]/10 disabled:text-[#111111]/50 disabled:shadow-none disabled:cursor-not-allowed
+                       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4A52A]"
           >
             {submitting
               ? (checkingStock ? 'Checking stock…' : 'Placing Order…')

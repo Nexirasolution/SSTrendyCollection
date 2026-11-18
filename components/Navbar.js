@@ -10,11 +10,11 @@ import { useWishlist } from './WhishlistContext';
 import CouponMarquee from './CouponMarquee';
 
 // Palette — keep in sync with CouponMarquee.
-// Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
-const PRIMARY = '#C2185B';
-const INK = '#2D1028';
-const INK_SOFT = 'rgba(45, 16, 40, 0.65)';
-const LINE = 'rgba(45, 16, 40, 0.12)';
+// Primary #A67C00 · Secondary #D4AF37 · Background #FFFBF0 · Text #1A1A1A · Accent #F3E5B5
+const PRIMARY = '#A67C00';
+const INK = '#1A1A1A';
+const INK_SOFT = 'rgba(26, 26, 26, 0.65)';
+const LINE = 'rgba(26, 26, 26, 0.12)';
 const WHITE = '#FFFFFF';
 
 const ENQUIRY_LINKS = [
@@ -46,8 +46,8 @@ const CSS = `
   content:'';position:absolute;left:-50%;top:105%;width:200%;height:200%;border-radius:42%;
   z-index:-1;pointer-events:none;transition:top .8s ${EASE};
 }
-.nv-link::before{background:rgba(248,215,227,.95);animation:nv-spin 7s linear infinite}
-.nv-link::after{background:rgba(194,24,91,.10);animation:nv-spin 11s linear infinite reverse}
+.nv-link::before{background:rgba(243,229,181,.95);animation:nv-spin 7s linear infinite}
+.nv-link::after{background:rgba(166,124,0,.10);animation:nv-spin 11s linear infinite reverse}
 /* Wide pills: use a fixed square blob so it keeps filling the link while it turns */
 .nv-link::before,.nv-link::after{left:calc(50% - 120px);width:240px;height:240px}
 .nv-link:hover::before,.nv-link[data-active="true"]::before{top:calc(50% - 136px)}
@@ -69,11 +69,11 @@ const CSS = `
 }
 .nv-icon:active{transform:translateY(0) scale(.94)}
 .nv-fx{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:-1}
-.nv-fx::before{background:rgba(194,24,91,.35);animation:nv-spin 8s linear infinite}
+.nv-fx::before{background:rgba(166,124,0,.35);animation:nv-spin 8s linear infinite}
 .nv-fx::after{background:${INK};animation:nv-spin 6s linear infinite reverse}
 .nv-icon:hover .nv-fx::before{top:-26%}
 .nv-icon:hover .nv-fx::after{top:-14%}
-.nv-ripple{position:absolute;border-radius:50%;background:rgba(248,215,227,.5);transform:scale(0);animation:nv-ripple .75s ease-out forwards;pointer-events:none}
+.nv-ripple{position:absolute;border-radius:50%;background:rgba(243,229,181,.5);transform:scale(0);animation:nv-ripple .75s ease-out forwards;pointer-events:none}
 @keyframes nv-ripple{to{transform:scale(1);opacity:0}}
 .nv-icon:focus-visible,.nv-link:focus-visible{outline:2px solid ${PRIMARY};outline-offset:3px}
 
@@ -110,14 +110,14 @@ const CSS = `
 @keyframes nv-pop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
 
 .nv-search{background:${WHITE};border:1px solid ${LINE};transition:border-color .3s ease,box-shadow .3s ease}
-.nv-search:focus-within{border-color:${INK};box-shadow:0 4px 16px rgba(45,16,40,.08)}
+.nv-search:focus-within{border-color:${INK};box-shadow:0 4px 16px rgba(26,26,26,.08)}
 .nv-search input::placeholder{color:${INK_SOFT}}
 
 /* Flowing water line under the header */
 .nv-wave{position:absolute;left:0;right:0;bottom:-7px;height:8px;pointer-events:none}
 .nv-wave::before,.nv-wave::after{content:'';position:absolute;inset:0;background-repeat:repeat-x;background-size:48px 8px}
-.nv-wave::before{background-image:${WAVE_SVG('%23D4A017')};animation:nv-flow 6s linear infinite}
-.nv-wave::after{background-image:${WAVE_SVG('%23C2185B')};opacity:.45;animation:nv-flow 9s linear infinite reverse}
+.nv-wave::before{background-image:${WAVE_SVG('%23D4AF37')};animation:nv-flow 6s linear infinite}
+.nv-wave::after{background-image:${WAVE_SVG('%23A67C00')};opacity:.45;animation:nv-flow 9s linear infinite reverse}
 @keyframes nv-flow{to{background-position-x:48px}}
 
 @media (prefers-reduced-motion:reduce){
@@ -305,7 +305,7 @@ export default function Navbar() {
   const panelStyle = {
     background: WHITE,
     border: `1px solid ${LINE}`,
-    boxShadow: '0 16px 36px rgba(45, 16, 40, 0.10)',
+    boxShadow: '0 16px 36px rgba(26, 26, 26, 0.10)',
   };
 
   return (
@@ -319,7 +319,7 @@ export default function Navbar() {
         style={{
           background: WHITE,
           borderBottom: `1px solid ${LINE}`,
-          boxShadow: scrolled ? '0 8px 24px rgba(45, 16, 40, 0.08)' : '0 0 0 rgba(45, 16, 40, 0)',
+          boxShadow: scrolled ? '0 8px 24px rgba(26, 26, 26, 0.08)' : '0 0 0 rgba(26, 26, 26, 0)',
           transition: 'box-shadow .4s ease',
         }}
       >
@@ -424,17 +424,17 @@ export default function Navbar() {
               </nav>
             </div>
 
-            {/* Center: logo (scaled with transform so the header height never changes).
-                Mobile is 56px with vertical padding so it sits fully inside the header. */}
+            {/* Center: circular logo (scaled with transform so the header height never changes).
+                Mobile is 44px with vertical padding so it sits fully inside the header. */}
             <Link href="/" className="flex items-center justify-self-center py-1.5 sm:py-0">
               <div
-                className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24"
+                className="relative w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden"
                 style={{
                   transform: scrolled ? 'scale(0.78)' : 'scale(1)',
                   transition: `transform .45s ${EASE}`,
                 }}
               >
-                <Image src="/logo.png" alt="Tirupur Clothing Hub" fill className="object-contain" priority />
+                <Image src="/logo.png" alt="SS Trendy Shopee" fill className="object-cover scale-[1.08]" priority />
               </div>
             </Link>
 
@@ -491,7 +491,7 @@ export default function Navbar() {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search kurtis, nighties, innerwear..."
+                placeholder="Search handmades, frocks..."
                 className="bg-transparent outline-none w-full text-sm"
                 style={{ color: INK }}
               />
@@ -508,8 +508,8 @@ export default function Navbar() {
             className="relative flex items-center justify-between px-6 py-3"
             style={{ borderBottom: `1px solid ${LINE}` }}
           >
-            <div className="relative w-16 h-16">
-              <Image src="/logo.png" alt="Tirupur Clothing Hub" fill className="object-contain" />
+            <div className="relative w-12 h-12 rounded-full overflow-hidden">
+              <Image src="/logo.png" alt="SS Trendy Shopee" fill className="object-cover scale-[1.08]" />
             </div>
             <button className="nv-icon w-10 h-10" onClick={closeMobileMenu} aria-label="Close menu">
               <Burger open />

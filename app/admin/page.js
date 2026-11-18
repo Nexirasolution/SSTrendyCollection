@@ -5,15 +5,15 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { formatINR } from '@/lib/utils';
 import { IndianRupee, ShoppingCart, Package, AlertTriangle } from 'lucide-react';
 
-// Palette: Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
+// Palette: Primary #A67C00 · Secondary #D4AF37 · Background #FFFBF0 · Text #1A1A1A · Accent #F3E5B5
 // Keep in sync with AdminShell and the storefront components.
-const PRIMARY = '#C2185B';
-const SECONDARY = '#D4A017';
-const BG = '#FFF8F3';
-const INK = '#2D1028';
-const INK_SOFT = 'rgba(45, 16, 40, 0.6)';
-const ACCENT = '#F8D7E3';
-const LINE = '#F1DCE4'; // soft pink border, derived from the accent
+const PRIMARY = '#A67C00';
+const SECONDARY = '#D4AF37';
+const BG = '#FFFBF0';
+const INK = '#1A1A1A';
+const INK_SOFT = 'rgba(26, 26, 26, 0.6)';
+const ACCENT = '#F3E5B5';
+const LINE = '#EADFC0'; // soft gold border, derived from the accent
 const PAPER = '#FFFFFF';
 const FONT_SERIF = "Georgia, 'Times New Roman', serif";
 
@@ -21,7 +21,7 @@ const FONT_SERIF = "Georgia, 'Times New Roman', serif";
 // the previous theme's CSS.
 const CARD = { background: PAPER, border: `1px solid ${LINE}`, borderRadius: '4px' };
 
-// `highlight` flips the icon tile to primary pink — used for the card that needs action.
+// `highlight` flips the icon tile to primary gold — used for the card that needs action.
 function StatCard({ icon: Icon, label, value, sub, highlight = false }) {
   return (
     <div className="p-4 flex items-center gap-3" style={CARD}>

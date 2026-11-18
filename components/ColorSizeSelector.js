@@ -1,23 +1,23 @@
 'use client';
 
 // Design tokens — keep in sync with the homepage, CartPage, CheckoutPage and ProductPage.
-//   Primary    #C2185B  selected option, active ring
-//   Secondary  #D4A017  thin decorative accents only
+//   Primary    #A67C00  selected option, active ring
+//   Secondary  #D4AF37  thin decorative accents only
 //   Background #FFFFFF  pure white
-//   Text       #2D1028  headings + body
-//   Accent     #F8D7E3  soft hover wash
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #1A1A1A  headings + body
+//   Accent     #F3E5B5  soft hover wash
+const PRIMARY = '#A67C00';
+const GOLD = '#D4AF37';
+const INK = '#1A1A1A';
+const ACCENT = '#F3E5B5';
 const PAPER = '#FFFFFF';
 
-const INK_SOFT = 'rgba(45, 16, 40, 0.72)';
-const LINE = 'rgba(45, 16, 40, 0.15)';
-const DISABLED = 'rgba(45, 16, 40, 0.35)';
-const DISABLED_LINE = 'rgba(45, 16, 40, 0.08)';
+const INK_SOFT = 'rgba(26, 26, 26, 0.72)';
+const LINE = 'rgba(26, 26, 26, 0.15)';
+const DISABLED = 'rgba(26, 26, 26, 0.35)';
+const DISABLED_LINE = 'rgba(26, 26, 26, 0.08)';
 
-// Shared chip styles — fully round pills, pink when selected.
+// Shared chip styles — fully round pills, gold when selected.
 function chipStyle({ active, disabled }) {
   return {
     border: `1px solid ${disabled ? DISABLED_LINE : active ? PRIMARY : LINE}`,
@@ -30,7 +30,7 @@ function chipStyle({ active, disabled }) {
 
 const CHIP_BASE =
   'rounded-full text-sm font-bold transition-colors active:opacity-80';
-const CHIP_HOVER = 'hover:bg-[#F8D7E3] hover:border-[#C2185B]/40';
+const CHIP_HOVER = 'hover:bg-[#F3E5B5] hover:border-[#A67C00]/40';
 
 function AddonSelector({ label, options, activeId, onChange, formatINR }) {
   if (!options?.length) return null;
@@ -155,7 +155,7 @@ export default function ColorSizeSelector({
                   style={{
                     backgroundColor: v.colorHex || '#ccc',
                     transform: isActive ? 'scale(1.08)' : 'scale(1)',
-                    // Thin outline keeps white swatches visible; active gets a pink ring
+                    // Thin outline keeps white swatches visible; active gets a gold ring
                     boxShadow: isActive
                       ? `0 0 0 2px ${PAPER}, 0 0 0 3.5px ${PRIMARY}`
                       : `0 0 0 1px ${LINE}`,
@@ -164,7 +164,7 @@ export default function ColorSizeSelector({
                   {isActive && (
                     <span
                       className="absolute inset-0 flex items-center justify-center text-white text-[11px] font-bold"
-                      style={{ textShadow: '0 1px 2px rgba(45,16,40,0.5)' }}
+                      style={{ textShadow: '0 1px 2px rgba(26,26,26,0.5)' }}
                     >
                       ✓
                     </span>
@@ -229,7 +229,7 @@ export default function ColorSizeSelector({
             <button
               type="button"
               onClick={onViewSizeChart}
-              className="mt-2.5 text-xs font-bold underline underline-offset-2 transition-colors hover:text-[#C2185B]"
+              className="mt-2.5 text-xs font-bold underline underline-offset-2 transition-colors hover:text-[#A67C00]"
               style={{ color: INK_SOFT, textDecorationColor: PRIMARY }}
             >
               View size chart{sizeChartImages.length > 1 ? ` (${sizeChartImages.length})` : ''}

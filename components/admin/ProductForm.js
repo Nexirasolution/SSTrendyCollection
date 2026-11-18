@@ -6,20 +6,20 @@ import toast from 'react-hot-toast';
 import { Plus, Trash2, Upload, Loader2, X } from 'lucide-react';
 import { MATERIALS, FINISHES, STONE_TYPES, OCCASIONS, BANGLE_SIZES } from '@/lib/jewellery';
 
-// Palette: Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
+// Palette: Primary #A67C00 · Secondary #D4AF37 · Background #FFFBF0 · Text #1A1A1A · Accent #F3E5B5
 // Keep in sync with the other admin pages.
-const INK = '#2D1028';
-const INK_SOFT = 'rgba(45, 16, 40, 0.6)';
-const PRIMARY = '#C2185B';
-const ACCENT = '#F8D7E3';
-const LINE = '#F1DCE4'; // soft pink border, derived from the accent
+const INK = '#1A1A1A';
+const INK_SOFT = 'rgba(26, 26, 26, 0.6)';
+const PRIMARY = '#A67C00';
+const ACCENT = '#F3E5B5';
+const LINE = '#EADFC0'; // soft gold border, derived from the accent
 const PAPER = '#FFFFFF';
-const DISABLED_BG = '#FFF8F3';
+const DISABLED_BG = '#FFFBF0';
 
 function emptyVariant() {
   return {
     color: '',
-    colorHex: '#C2185B',
+    colorHex: '#A67C00',
     images: [''],
     price: '',
     compareAtPrice: '',

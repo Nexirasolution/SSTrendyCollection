@@ -6,15 +6,15 @@
   --font-display: 'Poppins', sans-serif;
   --font-body: 'Poppins', sans-serif;
 
-  /* Brand Colors — pink + gold on warm cream */
-  --brand-primary: #C2185B;
-  --brand-primary-dark: #A01049;   /* hover shade of primary */
-  --brand-secondary: #D4A017;
-  --brand-secondary-dark: #B88A10; /* hover shade of secondary */
-  --brand-bg: #FFF8F3;
-  --brand-ink: #2D1028;
-  --brand-accent: #F8D7E3;         /* soft pink wash */
-  --brand-border: #F1DCE4;         /* soft pink border, derived from accent */
+  /* Brand Colors — gold + black on logo cream */
+  --brand-primary: #A67C00;
+  --brand-primary-dark: #856300;   /* hover shade of primary */
+  --brand-secondary: #D4AF37;
+  --brand-secondary-dark: #B8962E; /* hover shade of secondary */
+  --brand-bg: #FFFBF0;
+  --brand-ink: #1A1A1A;
+  --brand-accent: #F3E5B5;         /* soft gold wash */
+  --brand-border: #EADFC0;         /* soft gold border, derived from accent */
 }
 
 html {
@@ -39,7 +39,7 @@ body {
   background: var(--brand-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #C2185B99;
+  background: #A67C0099;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -49,7 +49,7 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Primary button — solid pink, flat minimalist radius */
+/* Primary button — solid gold, flat minimalist radius */
 .btn-primary {
   background: var(--brand-primary);
   color: #fff;
@@ -105,7 +105,7 @@ body {
   color: #fff;
 }
 
-/* Soft accent button (pink-wash fill) */
+/* Soft accent button (gold-wash fill) */
 .btn-gold {
   background: var(--brand-accent);
   color: var(--brand-primary);

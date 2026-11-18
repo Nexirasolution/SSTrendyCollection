@@ -21,21 +21,21 @@ import { resizeImage, buildSrcSet } from '@/lib/image';
 import { ArrowRight, Tag } from 'lucide-react';
 
 // Design tokens — keep in sync with Navbar, BannerCarousel and CouponMarquee.
-//   Primary    #C2185B  buttons on hover, badges, links, savings
-//   Secondary  #D4A017  thin rings and dividers (decorative only)
-//   Background #FFF8F3  category band
-//   Text       #2D1028  headings + body
-//   Accent     #F8D7E3  combo band wash
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const CREAM = '#FFF8F3';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Primary    #A67C00  buttons on hover, badges, links, savings
+//   Secondary  #D4AF37  thin rings and dividers (decorative only)
+//   Background #FFFBF0  category band
+//   Text       #1A1A1A  headings + body
+//   Accent     #F3E5B5  combo band wash
+const PRIMARY = '#A67C00';
+const GOLD = '#D4AF37';
+const CREAM = '#FFFBF0';
+const INK = '#1A1A1A';
+const ACCENT = '#F3E5B5';
 const WHITE = '#FFFFFF';
 
-const INK_SOFT = 'rgba(45, 16, 40, 0.68)';
-const HAIRLINE = 'rgba(45, 16, 40, 0.12)';
-const BAND_WASH = 'rgba(248, 215, 227, 0.6)'; // accent at 60% so white cards stand out
+const INK_SOFT = 'rgba(26, 26, 26, 0.68)';
+const HAIRLINE = 'rgba(26, 26, 26, 0.12)';
+const BAND_WASH = 'rgba(243, 229, 181, 0.6)'; // accent at 60% so white cards stand out
 
 const FONT_SANS = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 const EASE = 'cubic-bezier(.22,.9,.3,1)';
@@ -57,9 +57,9 @@ const COMBO_SIZES = '(max-width: 640px) 50vw, 33vw';
 //  · categories – tall capsule cards in a staggered (up/down) row. Auto-scrolls via JS
 //                  (components/CategorySlider.jsx) AND can be scrolled manually (swipe, drag,
 //                  wheel, keyboard). Each capsule bobs like it is floating on water; on hover
-//                  pink water rises inside the capsule and ripple rings spread from the photo.
+//                  gold water rises inside the capsule and ripple rings spread from the photo.
 //  · sea        – layered waves drifting along the bottom of the category band
-//  · button     – dark pill; pink water rises inside it on hover
+//  · button     – dark pill; gold water rises inside it on hover
 //  · combo cards – lift with a soft shadow, image zooms
 //  · "view all" – underline slides in, arrow nudges
 //  · wave lines – thin flowing water line on the edges of the combo band
@@ -101,18 +101,18 @@ const CSS = `
 .cw-pill{
   position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:center;
   padding:12px 12px 22px;border-radius:9999px;background:${WHITE};
-  border:1px solid rgba(212,160,23,.35);
-  box-shadow:0 10px 22px rgba(45,16,40,.07);
+  border:1px solid rgba(212,175,55,.35);
+  box-shadow:0 10px 22px rgba(26,26,26,.07);
   transition:transform .5s ${EASE},box-shadow .5s ease,border-color .4s ease;
 }
 .cw-item:hover .cw-pill{
-  transform:translateY(-6px);border-color:rgba(194,24,91,.45);
-  box-shadow:0 18px 32px rgba(194,24,91,.18);
+  transform:translateY(-6px);border-color:rgba(166,124,0,.45);
+  box-shadow:0 18px 32px rgba(166,124,0,.18);
 }
 
 /* Photo oval with thin gold ring (decorative) + ripple rings */
 .cw-photo{position:relative;width:100%;aspect-ratio:4/5;border-radius:50%;padding:4px;
-  background:${WHITE};box-shadow:0 0 0 1px rgba(212,160,23,.55)}
+  background:${WHITE};box-shadow:0 0 0 1px rgba(212,175,55,.55)}
 .cw-photo img,.cw-photo .cw-ph{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);
   border-radius:50%;object-fit:cover;transition:transform .8s ${EASE}}
 .cw-item:hover .cw-photo img{transform:scale(1.07)}
@@ -144,11 +144,11 @@ const CSS = `
 }
 .cw-water::before{
   content:'';position:absolute;left:0;right:0;top:-11px;height:12px;
-  background-image:${WAVE_FILL('%23F8D7E3')};background-repeat:repeat-x;background-size:60px 12px;
+  background-image:${WAVE_FILL('%23F3E5B5')};background-repeat:repeat-x;background-size:60px 12px;
   animation:cw-flow 4s linear infinite;
 }
 .cw-water-b{background:${PRIMARY};opacity:.22;transition-delay:.06s}
-.cw-water-b::before{background-image:${WAVE_FILL('%23C2185B')};animation:cw-flow 6s linear infinite reverse}
+.cw-water-b::before{background-image:${WAVE_FILL('%23A67C00')};animation:cw-flow 6s linear infinite reverse}
 .cw-item:hover .cw-water{transform:translateY(38%)}
 .cw-item:hover .cw-water-b{transform:translateY(52%)}
 @keyframes cw-flow{to{background-position-x:60px}}
@@ -156,8 +156,8 @@ const CSS = `
 /* Sea along the bottom of the band — the front layer is white so it melts into the next section */
 .cw-sea{position:absolute;left:0;right:0;bottom:0;height:48px;pointer-events:none}
 .cw-sea i{position:absolute;left:0;right:0;bottom:0;background-repeat:repeat-x;background-size:600px 48px}
-.cw-sea i:nth-child(1){height:48px;background-image:${SEA_FILL('%23F8D7E3')};opacity:.9;animation:cw-drift 22s linear infinite}
-.cw-sea i:nth-child(2){height:36px;background-image:${SEA_FILL('%23C2185B')};opacity:.10;animation:cw-drift 30s linear infinite reverse}
+.cw-sea i:nth-child(1){height:48px;background-image:${SEA_FILL('%23F3E5B5')};opacity:.9;animation:cw-drift 22s linear infinite}
+.cw-sea i:nth-child(2){height:36px;background-image:${SEA_FILL('%23A67C00')};opacity:.10;animation:cw-drift 30s linear infinite reverse}
 .cw-sea i:nth-child(3){height:24px;background-image:${SEA_FILL('%23FFFFFF')};animation:cw-drift 16s linear infinite}
 @keyframes cw-drift{to{background-position-x:600px}}
 
@@ -170,9 +170,9 @@ const CSS = `
   content:'';position:absolute;left:calc(50% - 180px);top:105%;width:360px;height:360px;border-radius:42%;
   z-index:-1;pointer-events:none;transition:top .8s ${EASE};
 }
-.hp-btn::before{background:rgba(194,24,91,.55);animation:hp-spin 8s linear infinite}
+.hp-btn::before{background:rgba(166,124,0,.55);animation:hp-spin 8s linear infinite}
 .hp-btn::after{background:${PRIMARY};animation:hp-spin 6s linear infinite reverse}
-.hp-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(194,24,91,.25)}
+.hp-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(166,124,0,.25)}
 .hp-btn:hover::before{top:calc(50% - 212px)}
 .hp-btn:hover::after{top:calc(50% - 196px)}
 .hp-btn:active{transform:translateY(0) scale(.97)}
@@ -195,8 +195,8 @@ const CSS = `
   transition:transform .45s ${EASE},box-shadow .45s ease,border-color .3s ease;
 }
 .hp-card:hover{
-  transform:translateY(-4px);border-color:rgba(194,24,91,.35);
-  box-shadow:0 18px 36px rgba(45,16,40,.12);
+  transform:translateY(-4px);border-color:rgba(166,124,0,.35);
+  box-shadow:0 18px 36px rgba(26,26,26,.12);
 }
 .hp-card:focus-visible{outline:2px solid ${PRIMARY};outline-offset:3px}
 
@@ -204,8 +204,8 @@ const CSS = `
 .hp-wave-top{top:-4px}
 .hp-wave-bottom{bottom:-4px}
 .hp-wave::before,.hp-wave::after{content:'';position:absolute;inset:0;background-repeat:repeat-x;background-size:48px 8px}
-.hp-wave::before{background-image:${WAVE_SVG('%23D4A017')};animation:hp-flow 6s linear infinite}
-.hp-wave::after{background-image:${WAVE_SVG('%23C2185B')};opacity:.45;animation:hp-flow 9s linear infinite reverse}
+.hp-wave::before{background-image:${WAVE_SVG('%23D4AF37')};animation:hp-flow 6s linear infinite}
+.hp-wave::after{background-image:${WAVE_SVG('%23A67C00')};opacity:.45;animation:hp-flow 9s linear infinite reverse}
 @keyframes hp-flow{to{background-position-x:48px}}
 
 @media (prefers-reduced-motion:reduce){

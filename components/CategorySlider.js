@@ -7,7 +7,7 @@ import { resizeImage } from '@/lib/image';
 
 const SPEED = 40;          // px per second (auto-scroll)
 const RESUME_DELAY = 1800; // ms after the last user interaction before auto-scroll resumes
-const ACCENT = '#F8D7E3';
+const ACCENT = '#F3E5B5';
 const FONT_SANS = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
 export default function CategorySlider({ categories }) {

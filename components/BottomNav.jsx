@@ -6,13 +6,13 @@ import { Home, ClipboardList, Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/components/CartContext';
 import { useWishlist } from '@/components/WhishlistContext';
 
-// Design tokens — full-width floating black pill.
-//   Black      #000000  the pill
-//   White      #FFFFFF  icons + labels
-//   Primary    #C2185B  active icon + label, badges
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+//   Black      #000000  the pill (logo lettering)
+//   Cream      #FFF8E7  inactive icons + labels (logo background)
+//   Gold       #D4A52A  active icon + label, badges, outline (logo ring)
 const BLACK = '#000000';
-const WHITE = '#FFFFFF';
-const PRIMARY = '#C2185B';
+const CREAM = '#FFF8E7';
+const GOLD = '#D4A52A';
 
 // How far the nav floats above the bottom edge (plus the phone's safe area).
 const FLOAT_GAP = 12; // px
@@ -64,13 +64,14 @@ export default function BottomNav() {
           right: SIDE_GAP,
           bottom: `calc(env(safe-area-inset-bottom) + ${FLOAT_GAP}px)`,
           background: BLACK,
+          border: `1.5px solid ${GOLD}`,
           boxShadow: '0 14px 30px rgba(0, 0, 0, 0.28)',
         }}
       >
         <div className="flex items-stretch justify-between px-3 py-2">
           {items.map(({ href, label, icon: Icon, badge }) => {
             const active = isActive(href);
-            const color = active ? PRIMARY : WHITE;
+            const color = active ? GOLD : CREAM;
             return (
               <Link
                 key={href}
@@ -83,12 +84,12 @@ export default function BottomNav() {
                     size={21}
                     strokeWidth={2.5}
                     style={{ color }}
-                    fill={active && label === 'Wishlist' ? PRIMARY : 'none'}
+                    fill={active && label === 'Wishlist' ? GOLD : 'none'}
                   />
                   {badge > 0 && (
                     <span
                       className="absolute -top-1.5 -right-2.5 text-[8px] font-extrabold leading-none rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-[3px]"
-                      style={{ background: PRIMARY, color: WHITE, border: `1.5px solid ${BLACK}` }}
+                      style={{ background: GOLD, color: BLACK, border: `1.5px solid ${BLACK}` }}
                     >
                       {badge > 9 ? '9+' : badge}
                     </span>

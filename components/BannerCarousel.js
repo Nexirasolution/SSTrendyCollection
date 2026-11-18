@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Palette — keep in sync with Navbar and CouponMarquee.
-// Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
-const PRIMARY = '#C2185B';
-const INK = '#2D1028';
-const CREAM = '#FFF8F3';
+// Palette — matched to the SS Trendy Shopee logo. Keep in sync with Navbar and CouponMarquee.
+// Primary #D4A52A (gold) · Background #FFF8E7 (cream) · Text #111111 (black)
+const PRIMARY = '#D4A52A';
+const INK = '#111111';
+const CREAM = '#FFF8E7';
 const WHITE = '#FFFFFF';
-const LINE = 'rgba(45, 16, 40, 0.12)';
+const LINE = 'rgba(17, 17, 17, 0.12)';
 
 const SLIDE_MS = 4500;
 const EASE = 'cubic-bezier(.22,.9,.3,1)';
@@ -18,13 +18,13 @@ const EASE = 'cubic-bezier(.22,.9,.3,1)';
 // Animation set:
 //  · slides   – crossfade with a gentle zoom-out settle
 //  · arrows   – dark water rises inside the circle on hover (same as Navbar icons)
-//  · dots     – the active dot is a pill that fills with pink over the slide time
+//  · dots     – the active dot is a pill that fills with gold over the slide time
 const CSS = `
 .bn-arrow{
   position:absolute;top:50%;z-index:10;isolation:isolate;overflow:hidden;
   display:flex;align-items:center;justify-content:center;border-radius:9999px;
   background:rgba(255,255,255,.92);color:${INK};border:1px solid ${LINE};
-  box-shadow:0 4px 14px rgba(45,16,40,.12);
+  box-shadow:0 4px 14px rgba(17,17,17,.12);
   transform:translateY(-50%);
   transition:color .3s ease,border-color .3s ease,transform .3s ${EASE};
 }
@@ -32,7 +32,7 @@ const CSS = `
   content:'';position:absolute;left:-50%;top:105%;width:200%;height:200%;border-radius:42%;
   z-index:-1;pointer-events:none;transition:top .8s ${EASE};
 }
-.bn-arrow::before{background:rgba(194,24,91,.35);animation:bn-spin 8s linear infinite}
+.bn-arrow::before{background:rgba(212,165,42,.45);animation:bn-spin 8s linear infinite}
 .bn-arrow::after{background:${INK};animation:bn-spin 6s linear infinite reverse}
 .bn-arrow:hover{
   color:${WHITE};border-color:${INK};
@@ -133,7 +133,7 @@ export default function BannerCarousel({ banners }) {
           style={{
             background: WHITE,
             border: `1px solid ${LINE}`,
-            boxShadow: '0 18px 40px rgba(45, 16, 40, 0.10)',
+            boxShadow: '0 18px 40px rgba(17, 17, 17, 0.10)',
           }}
         >
           {banners.map((b, i) => {
@@ -202,7 +202,7 @@ export default function BannerCarousel({ banners }) {
                 {pad(index + 1)} / {pad(count)}
               </div>
 
-              {/* Pill indicators — the active one fills with pink over the slide time */}
+              {/* Pill indicators — the active one fills with gold over the slide time */}
               <div
                 className="absolute bottom-2 sm:bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 rounded-full px-3 sm:px-4 backdrop-blur-sm"
                 style={{
@@ -225,7 +225,7 @@ export default function BannerCarousel({ banners }) {
                         style={{
                           height: '6px',
                           width: active ? '32px' : '6px',
-                          background: 'rgba(45, 16, 40, 0.2)',
+                          background: 'rgba(17, 17, 17, 0.2)',
                           transition: `width .5s ${EASE}`,
                         }}
                       >

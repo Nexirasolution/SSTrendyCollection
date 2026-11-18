@@ -25,11 +25,11 @@ async function main() {
   const Settings = mongoose.models.Settings || mongoose.model('Settings', SettingsSchema);
 
   // 1. Admin account
-  const email = (process.env.ADMIN_EMAIL || 'shalu199631@gmail.com').toLowerCase();
+  const email = (process.env.ADMIN_EMAIL || 'sstrendyshopeeofficial@gmail.com').toLowerCase();
   const existingAdmin = await Admin.findOne({ email });
   if (!existingAdmin) {
     const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'ChangeMe123!', 10);
-    await Admin.create({ name: 'Admin', email, passwordHash, role: 'owner' });
+    await Admin.create({ name: 'Siva Suriya', email, passwordHash, role: 'owner' });
     console.log(`Created admin account: ${email}`);
   } else {
     console.log('Admin account already exists, skipping.');
@@ -60,16 +60,16 @@ async function main() {
   if (!existingSettings) {
     await Settings.create({
       key: 'global',
-      storeName: 'Aara Handmade Bangles',
-      whatsapp: '918778695195',
-      phone: '918778695195',
-      email: 'shalu199631@gmail.com',
-      instagram: 'aara_handmade_bangles',
-      address: 'No. 95, Thiruvallur Street, Mettu Mangalam, Thirukazhukundram, Chengalpattu District, Tamil Nadu - 603109',
+      storeName: 'SS Trendy Shopee',
+      whatsapp: '919087388988',
+      phone: '919087388988',
+      email: 'sstrendyshopeeofficial@gmail.com',
+      instagram: 'ss_trendy_shopee',
+      address: '5th Cross, Water Board Colony, Alagapuram, Salem, Tamil Nadu - 636016',
       shippingFee: 49,
       freeShippingAbove: 999,
-      seoTitle: 'Aara Handmade Bangles | Handcrafted Bangles Online',
-      seoDescription: 'Shop beautiful handmade bangles from Aara Handmade Bangles, Thirukazhukundram, Chengalpattu.'
+      seoTitle: 'SS Trendy Shopee | Handcrafted Bangles Online',
+      seoDescription: 'Shop beautiful handmade bangles from SS Trendy Shopee, Alagapuram, Salem.'
     });
     console.log('Created default store settings.');
   }

@@ -6,23 +6,24 @@ import toast from 'react-hot-toast';
 import { Package, Phone, Truck, Star, X, Loader2, ImagePlus, CheckCircle2 } from 'lucide-react';
 import { formatINR } from '@/lib/utils';
 
-// Design tokens — keep in sync with the homepage, ProductPage, Footer and BulkEnquiryPage.
-//   Primary    #C2185B  status highlights, icons, stars, focus, button hover
-//   Secondary  #D4A017  thin dividers (decorative only)
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, ProductPage, Footer and BulkEnquiryPage.
+//   Primary    #D4A52A  status highlights, icons, stars, focus, button hover
+//   Secondary  #D4A52A  thin dividers (decorative only)
 //   Background #FFFFFF  pure white page and cards
-//   Text       #2D1028  headings + body, dark buttons
-//   Accent     #F8D7E3  soft badges, focus ring
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #111111  headings + body, dark buttons
+//   Accent     #F6E7B8  soft gold badges, focus ring
+const PRIMARY = '#D4A52A';
+const GOLD = '#D4A52A';
+const INK = '#111111';
+const ACCENT = '#F6E7B8';
 const PAPER = '#FFFFFF';
 
-const GREY = 'rgba(45, 16, 40, 0.72)';      // secondary text
-const GREY_WASH = 'rgba(45, 16, 40, 0.07)'; // neutral badge background
-const LINE = 'rgba(45, 16, 40, 0.12)';      // hairlines
-const INPUT_LINE = 'rgba(45, 16, 40, 0.18)';
-const GOLD_LINE = 'rgba(212, 160, 23, 0.55)'; // thin decorative divider
+const GREY = 'rgba(17, 17, 17, 0.72)';      // secondary text
+const GREY_WASH = 'rgba(17, 17, 17, 0.07)'; // neutral badge background
+const LINE = 'rgba(17, 17, 17, 0.12)';      // hairlines
+const INPUT_LINE = 'rgba(17, 17, 17, 0.18)';
+const GOLD_LINE = 'rgba(212, 165, 42, 0.55)'; // thin decorative divider
 const ALERT = '#A33A2B';                    // errors and cancelled only, so they still read as problems
 const ALERT_WASH = '#FBECE9';
 const FONT_SERIF = "Georgia, 'Times New Roman', serif";
@@ -34,8 +35,8 @@ const R_MD = '12px';
 const STATUS_STYLES = {
   placed:    { color: GREY,  background: GREY_WASH },
   confirmed: { color: INK,   background: ACCENT },
-  packed:    { color: INK,   background: ACCENT, border: `1px solid rgba(194, 24, 91, 0.35)` },
-  shipped:   { color: PAPER, background: PRIMARY },
+  packed:    { color: INK,   background: ACCENT, border: `1px solid rgba(212, 165, 42, 0.6)` },
+  shipped:   { color: INK,   background: PRIMARY },
   delivered: { color: PAPER, background: INK },
   cancelled: { color: ALERT, background: ALERT_WASH },
   returned:  { color: GREY,  background: GREY_WASH },
@@ -43,12 +44,12 @@ const STATUS_STYLES = {
 
 const KEEP_COLORS = { WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' };
 
-// Dark pill, turns primary pink on hover — same as the other pages.
+// Black pill, turns gold on hover — same as the other pages.
 const BTN_PRIMARY =
-  'rounded-full transition-colors active:opacity-80 disabled:opacity-50 bg-[#2D1028] text-white border border-[#2D1028] hover:bg-[#C2185B] hover:border-[#C2185B]';
+  'rounded-full transition-colors active:opacity-80 disabled:opacity-50 bg-[#111111] text-white border border-[#111111] hover:bg-[#D4A52A] hover:border-[#D4A52A] hover:text-[#111111]';
 
 const INPUT_FOCUS =
-  'outline-none transition-all focus:border-[#C2185B] focus:ring-4 focus:ring-[#F8D7E3] placeholder:text-[#2D1028]/50 placeholder:font-medium';
+  'outline-none transition-all focus:border-[#D4A52A] focus:ring-4 focus:ring-[#F6E7B8] placeholder:text-[#111111]/50 placeholder:font-medium';
 
 function ReviewForm({ order, item, phone, onDone }) {
   const [rating, setRating] = useState(5);
@@ -109,7 +110,7 @@ function ReviewForm({ order, item, phone, onDone }) {
           onClick={onDone}
           type="button"
           aria-label="Close review form"
-          className="flex items-center justify-center w-7 h-7 rounded-full transition-colors hover:bg-[#F8D7E3]"
+          className="flex items-center justify-center w-7 h-7 rounded-full transition-colors hover:bg-[#F6E7B8]"
         >
           <X size={14} strokeWidth={2} style={{ color: INK }} />
         </button>
@@ -138,8 +139,8 @@ function ReviewForm({ order, item, phone, onDone }) {
           <img key={i} src={url} alt="" className="w-12 h-12 object-cover" style={{ borderRadius: R_MD, border: `1px solid ${LINE}` }} />
         ))}
         <label
-          className="w-12 h-12 flex items-center justify-center cursor-pointer transition-colors hover:bg-[#F8D7E3]"
-          style={{ border: `1px dashed rgba(194, 24, 91, 0.55)`, borderRadius: R_MD, color: PRIMARY, background: PAPER }}
+          className="w-12 h-12 flex items-center justify-center cursor-pointer transition-colors hover:bg-[#F6E7B8]"
+          style={{ border: `1px dashed rgba(212, 165, 42, 0.75)`, borderRadius: R_MD, color: PRIMARY, background: PAPER }}
         >
           {uploading ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} strokeWidth={1.75} />}
           <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} disabled={uploading} />
@@ -269,7 +270,7 @@ export default function OrdersPage() {
             <div
               key={o._id}
               className="p-4 sm:p-5"
-              style={{ border: `1px solid ${LINE}`, borderRadius: R_LG, background: PAPER, boxShadow: '0 10px 24px rgba(45, 16, 40, 0.05)' }}
+              style={{ border: `1px solid ${LINE}`, borderRadius: R_LG, background: PAPER, boxShadow: '0 10px 24px rgba(17, 17, 17, 0.05)' }}
             >
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-bold" style={{ color: INK }}>#{o.orderNumber}</span>
@@ -317,8 +318,8 @@ export default function OrdersPage() {
                             <button
                               type="button"
                               onClick={() => setOpenReview(openReview === reviewKey ? null : reviewKey)}
-                              className="flex items-center gap-1 text-[11px] font-bold shrink-0 px-3 py-1.5 rounded-full transition-colors hover:bg-[#F8D7E3]"
-                              style={{ color: INK, border: `1px solid rgba(194, 24, 91, 0.4)` }}
+                              className="flex items-center gap-1 text-[11px] font-bold shrink-0 px-3 py-1.5 rounded-full transition-colors hover:bg-[#F6E7B8]"
+                              style={{ color: INK, border: `1px solid rgba(212, 165, 42, 0.6)` }}
                             >
                               <Star size={12} strokeWidth={2} style={{ color: PRIMARY }} /> Rate
                             </button>

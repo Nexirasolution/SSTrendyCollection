@@ -6,19 +6,20 @@ import '@/models/Category'; // registers the Category schema — required for .p
 
 export const dynamic = 'force-dynamic'; // never cache/statically render this page
 
-// Design tokens — keep in sync with the homepage, CategoryPage, ProductCard and Footer.
-//   Primary    #C2185B  item-count pill, hover
-//   Secondary  #D4A017  thin divider (decorative only)
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, CategoryPage, ProductCard and Footer.
+//   Primary    #D4A52A  hover
+//   Secondary  #D4A52A  thin divider (decorative only)
 //   Background #FFFFFF  pure white page
-//   Text       #2D1028  headings + body
-//   Accent     #F8D7E3  count pill wash
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #111111  headings + body
+//   Accent     #F6E7B8  count pill wash
+const PRIMARY = '#D4A52A';
+const GOLD = '#D4A52A';
+const INK = '#111111';
+const ACCENT = '#F6E7B8';
 const PAPER = '#FFFFFF';
 
-const GREY = 'rgba(45, 16, 40, 0.72)'; // secondary text
+const GREY = 'rgba(17, 17, 17, 0.72)'; // secondary text
 const FONT_SERIF = "Georgia, 'Times New Roman', serif";
 
 const SORT_MAP = {
@@ -50,7 +51,7 @@ async function getAllProducts(sort) {
 }
 
 export const metadata = {
-  title: 'All Products | Aara Handmade Bangles',
+  title: 'All Products |  SS Trendy Shopee',
 };
 
 export default async function ProductsPage({ searchParams }) {
@@ -64,7 +65,7 @@ export default async function ProductsPage({ searchParams }) {
     <section className="max-w-6xl mx-auto px-4 sm:px-5 py-12 sm:py-16" style={{ background: PAPER }}>
       <div
         className="mb-8 pb-5 flex items-center justify-between flex-wrap gap-3"
-        style={{ borderBottom: `1px solid rgba(212, 160, 23, 0.55)` }}
+        style={{ borderBottom: `1px solid rgba(212, 165, 42, 0.55)` }}
       >
         <h1
           className="text-3xl sm:text-4xl font-bold tracking-tight"

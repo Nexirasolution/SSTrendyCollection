@@ -3,21 +3,22 @@
 import { useEffect, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 
-// Design tokens — keep in sync with the homepage, ProductPage, Navbar and Footer.
-//   Primary    #C2185B  focus, checkbox, button hover
-//   Secondary  #D4A017  thin divider (decorative only)
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, ProductPage, Navbar and Footer.
+//   Primary    #D4A52A  focus, checkbox, button hover
+//   Secondary  #D4A52A  thin divider (decorative only)
 //   Background #FFFFFF  pure white page and form card
-//   Text       #2D1028  headings, inputs, dark button
-//   Accent     #F8D7E3  focus ring, soft washes
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #111111  headings, inputs, dark button
+//   Accent     #F6E7B8  focus ring, soft washes
+const PRIMARY = '#D4A52A';
+const GOLD = '#D4A52A';
+const INK = '#111111';
+const ACCENT = '#F6E7B8';
 const WHITE = '#FFFFFF';
 
-const INK_SOFT = 'rgba(45, 16, 40, 0.68)';
-const HAIRLINE = 'rgba(45, 16, 40, 0.18)';
-const CARD_LINE = 'rgba(45, 16, 40, 0.12)';
+const INK_SOFT = 'rgba(17, 17, 17, 0.68)';
+const HAIRLINE = 'rgba(17, 17, 17, 0.18)';
+const CARD_LINE = 'rgba(17, 17, 17, 0.12)';
 const ERROR = '#B00020';
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP || '918778695195';
@@ -26,7 +27,7 @@ const FALLBACK_PRODUCTS = ['Kurtis', 'Nighties', 'Innerwear', 'Other'];
 
 // Fully rounded inputs; the multi-line message box gets a softer 20px radius.
 const inputBase =
-  'w-full px-5 py-3 text-sm font-medium bg-white outline-none transition-all placeholder:font-medium focus:border-[#C2185B] focus:ring-4 focus:ring-[#F8D7E3]';
+  'w-full px-5 py-3 text-sm font-medium bg-white outline-none transition-all placeholder:font-medium focus:border-[#D4A52A] focus:ring-4 focus:ring-[#F6E7B8]';
 const inputClass = `${inputBase} rounded-full`;
 const textareaClass = `${inputBase} rounded-[20px] resize-none`;
 
@@ -135,7 +136,7 @@ export default function BulkEnquiryPage() {
           style={{
             background: WHITE,
             border: `1px solid ${CARD_LINE}`,
-            boxShadow: '0 18px 40px rgba(45, 16, 40, 0.07)',
+            boxShadow: '0 18px 40px rgba(17, 17, 17, 0.07)',
           }}
         >
           <Field error={errors.name}>
@@ -239,7 +240,7 @@ export default function BulkEnquiryPage() {
             >
               <input
                 type="checkbox"
-                className="mt-0.5 w-4 h-4 rounded shrink-0 accent-[#C2185B]"
+                className="mt-0.5 w-4 h-4 rounded shrink-0 accent-[#D4A52A]"
                 checked={form.agree}
                 onChange={(e) => update('agree', e.target.checked)}
               />
@@ -249,7 +250,7 @@ export default function BulkEnquiryPage() {
 
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold tracking-[1.5px] uppercase transition-all active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(194,24,91,0.25)] bg-[#2D1028] text-white hover:bg-[#C2185B]"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full text-sm font-bold tracking-[1.5px] uppercase transition-all active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(212,165,42,0.35)] bg-[#111111] text-white hover:bg-[#D4A52A] hover:text-[#111111]"
           >
             <MessageCircle size={16} strokeWidth={2} />
             Submit

@@ -10,10 +10,11 @@ import Settings from '@/models/Settings';
 const display = Playfair_Display({ subsets: ['latin'], variable: '--font-display', weight: ['600', '700', '800'] });
 const body = Poppins({ subsets: ['latin'], variable: '--font-body', weight: ['300', '400', '500', '600', '700'] });
 
-const DEFAULT_SITE_URL = 'https://srivilvahclothing.co.in';
+// Fallback only. Set NEXT_PUBLIC_SITE_URL in .env to your real domain.
+const DEFAULT_SITE_URL = 'https://sstrendyshopee.com';
 
 // Always returns a valid absolute URL object, even if the env var
-// is missing the protocol (e.g. "srivilvahclothing.co.in" or "localhost:3000").
+// is missing the protocol (e.g. "sstrendyshopee.com" or "localhost:3000").
 function getSiteUrl() {
   const raw = (process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL).trim();
   const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
@@ -33,17 +34,17 @@ export async function generateMetadata() {
     settings = null;
   }
 
-  const title = settings?.seoTitle || 'Sri Vilvah Clothings - Women Kurtis, Nighties & More';
+  const title = settings?.seoTitle || 'SS Trendy Shopee - Handmades & Frocks';
   const description =
     settings?.seoDescription ||
-    'Shop authentic women kurtis, nighties, innerwear and trending collections online from Sri Vilvah Clothings.';
+    'Shop beautiful handmade products and trendy frocks online from SS Trendy Shopee, Salem.';
 
   return {
-    title: { default: title, template: '%s | Sri Vilvah Clothings' },
+    title: { default: title, template: '%s | SS Trendy Shopee' },
     description,
     metadataBase: getSiteUrl(),
-    keywords: ['women kurtis online', 'nighties online', 'innerwear online', 'Sri Vilvah Clothings', 'women fashion'],
-    openGraph: { title, description, siteName: 'Sri Vilvah Clothings', type: 'website' },
+    keywords: ['handmade products online', 'frocks online', 'SS Trendy Shopee', 'handmade gifts', 'Salem'],
+    openGraph: { title, description, siteName: 'SS Trendy Shopee', type: 'website' },
     icons: { icon: '/favicon.ico' },
   };
 }
@@ -53,7 +54,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${display.variable} ${body.variable} font-body antialiased`}
-        style={{ background: '#fdf5f5' }}
+        style={{ background: '#FFFBF0' }}
       >
         <CartProvider>
           <WishlistProvider>
@@ -72,21 +73,21 @@ export default function RootLayout({ children }) {
             style: {
               fontFamily: 'var(--font-body)',
               background: '#fff',
-              color: '#8B0000',
-              border: '1.5px solid #C9A84C',
+              color: '#1A1A1A',
+              border: '1.5px solid #D4AF37',
               borderRadius: '8px',
               fontSize: '13px',
               fontWeight: '600',
             },
             success: {
               iconTheme: {
-                primary: '#8B0000',
+                primary: '#A67C00',
                 secondary: '#fff',
               },
             },
             error: {
               iconTheme: {
-                primary: '#C9A84C',
+                primary: '#D4AF37',
                 secondary: '#fff',
               },
             },

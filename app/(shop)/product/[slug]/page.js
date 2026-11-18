@@ -17,33 +17,35 @@ import toast from 'react-hot-toast';
 const display = Fraunces({ subsets: ['latin'], weight: ['400', '500', '700'], style: ['normal', 'italic'], variable: '--font-display', display: 'swap' });
 const body = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body', display: 'swap' });
 
-// Design tokens — keep in sync with the homepage, ProductCard, Navbar and Footer.
-//   Primary    #C2185B  badges, savings, active states, hover
-//   Secondary  #D4A017  thin rings and dividers (decorative only)
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, ProductCard, Navbar and Footer.
+//   Primary    #D4A52A  badges, active states, hover, icons
+//   Gold deep  #9A7414  small gold text on white (darker for readability)
 //   Background #FFFFFF  pure white page, gallery and cards
-//   Text       #2D1028  headings + body, dark buttons
-//   Accent     #F8D7E3  soft washes and hovers
-const PRIMARY = '#C2185B';
-const SKELETON = 'rgba(248, 215, 227, 0.45)'; // loading placeholders on white
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #111111  headings + body, dark buttons
+//   Accent     #F6E7B8  soft gold washes and hovers
+const PRIMARY = '#D4A52A';
+const GOLD_DEEP = '#9A7414';
+const SKELETON = 'rgba(246, 231, 184, 0.45)'; // loading placeholders on white
+const INK = '#111111';
+const ACCENT = '#F6E7B8';
 const PAPER = '#FFFFFF';
 
-const GREY = 'rgba(45, 16, 40, 0.75)';
-const NEUTRAL = 'rgba(45, 16, 40, 0.55)';
-const HAIRLINE = 'rgba(45, 16, 40, 0.12)';
-const GOLD_LINE = 'rgba(212, 160, 23, 0.55)'; // thin decorative dividers
+const GREY = 'rgba(17, 17, 17, 0.75)';
+const NEUTRAL = 'rgba(17, 17, 17, 0.55)';
+const HAIRLINE = 'rgba(17, 17, 17, 0.12)';
+const GOLD_LINE = 'rgba(212, 165, 42, 0.55)'; // thin decorative dividers
 
 // Rounding scale: gallery / modals 20px · thumbnails 12px · buttons, badges, chips fully round.
 const R_LG = '20px';
 const R_MD = '12px';
 
-// Dark pill, turns primary pink on hover
+// Black pill, turns gold on hover
 const BTN_PRIMARY =
-  'rounded-full transition-colors active:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed bg-[#2D1028] text-white border border-[#2D1028] hover:bg-[#C2185B] hover:border-[#C2185B]';
-// White pill with pink-tinted border, accent wash on hover
+  'rounded-full transition-colors active:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed bg-[#111111] text-white border border-[#111111] hover:bg-[#D4A52A] hover:border-[#D4A52A] hover:text-[#111111]';
+// White pill with gold-tinted border, soft gold wash on hover
 const BTN_SECONDARY =
-  'rounded-full transition-colors active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#2D1028] border border-[#C2185B]/40 hover:bg-[#F8D7E3] hover:border-[#C2185B]';
+  'rounded-full transition-colors active:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed bg-white text-[#111111] border border-[#D4A52A]/60 hover:bg-[#F6E7B8] hover:border-[#D4A52A]';
 
 // Widths requested from the CDN for the main gallery image.
 const MAIN_WIDTHS = [480, 720, 1080];
@@ -369,15 +371,15 @@ export default function ProductPage() {
             <div className="flex items-center gap-2.5 sm:gap-3 mt-3 sm:mt-4">
               <button
                 onClick={() => { setWished((w) => !w); toast.success(wished ? 'Removed from wishlist' : 'Added to wishlist'); }}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs font-bold px-3.5 py-2.5 sm:py-2 rounded-full transition-colors hover:bg-[#F8D7E3]"
-                style={{ color: wished ? PRIMARY : INK, border: `1px solid ${wished ? PRIMARY : HAIRLINE}` }}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs font-bold px-3.5 py-2.5 sm:py-2 rounded-full transition-colors hover:bg-[#F6E7B8]"
+                style={{ color: wished ? GOLD_DEEP : INK, border: `1px solid ${wished ? PRIMARY : HAIRLINE}` }}
               >
                 <Heart size={14} strokeWidth={2} fill={wished ? PRIMARY : 'none'} style={{ color: wished ? PRIMARY : undefined }} />
                 {wished ? 'Saved' : 'Save'}
               </button>
               <button
                 onClick={handleShare}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs font-bold px-3.5 py-2.5 sm:py-2 rounded-full transition-colors hover:bg-[#F8D7E3]"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs font-bold px-3.5 py-2.5 sm:py-2 rounded-full transition-colors hover:bg-[#F6E7B8]"
                 style={{ color: INK, border: `1px solid ${HAIRLINE}` }}
               >
                 <Share2 size={14} strokeWidth={2} />
@@ -407,7 +409,7 @@ export default function ProductPage() {
           {/* ── Details ── */}
           <div className="flex flex-col min-w-0">
             {product.category?.name && (
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] mb-1.5 sm:mb-2" style={{ color: PRIMARY }}>
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] mb-1.5 sm:mb-2" style={{ color: GOLD_DEEP }}>
                 {product.category.name}
               </p>
             )}
@@ -452,7 +454,7 @@ export default function ProductPage() {
               {discount > 0 && (
                 <span
                   className="text-xs font-bold px-2.5 py-1 rounded-full"
-                  style={{ color: '#FFFFFF', background: PRIMARY }}
+                  style={{ color: INK, background: PRIMARY }}
                 >
                   {discount}% off
                 </span>
@@ -500,7 +502,7 @@ export default function ProductPage() {
               >
                 <button
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F8D7E3]"
+                  className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F6E7B8]"
                   style={{ color: INK }}
                   aria-label="Decrease quantity"
                 >
@@ -513,7 +515,7 @@ export default function ProductPage() {
                     return cap > 0 && cap !== Infinity ? Math.min(cap, q + 1) : q + 1;
                   })}
                   disabled={(() => { const cap = stockCap(); return stockKnown && cap !== Infinity && qty >= cap; })()}
-                  className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F8D7E3] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                  className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F6E7B8] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                   style={{ color: INK }}
                   aria-label="Increase quantity"
                 >
@@ -523,7 +525,7 @@ export default function ProductPage() {
               {(() => {
                 const cap = stockCap();
                 return stockKnown && cap !== Infinity && cap > 0 && cap <= 5 && (
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: PRIMARY, background: ACCENT }}>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ color: INK, background: ACCENT }}>
                     Only {cap} left
                   </span>
                 );
@@ -606,7 +608,7 @@ export default function ProductPage() {
             borderTop: `1px solid ${GOLD_LINE}`,
             borderTopLeftRadius: R_LG,
             borderTopRightRadius: R_LG,
-            boxShadow: '0 -6px 20px rgba(45, 16, 40, 0.10)',
+            boxShadow: '0 -6px 20px rgba(17, 17, 17, 0.10)',
             paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
             zIndex: 9999,
           }}
@@ -644,13 +646,13 @@ export default function ProductPage() {
         <div
           onClick={() => setLightboxImg(null)}
           className="fixed inset-0 flex items-center justify-center p-6"
-          style={{ background: 'rgba(45, 16, 40, 0.9)', zIndex: 10000 }}
+          style={{ background: 'rgba(17, 17, 17, 0.9)', zIndex: 10000 }}
         >
           <div className="relative w-full max-w-md aspect-square" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setLightboxImg(null)}
               className="absolute -top-11 right-0 sm:-top-2 sm:-right-11 w-9 h-9 flex items-center justify-center rounded-full"
-              style={{ background: 'rgba(248, 215, 227, 0.25)', color: PAPER }}
+              style={{ background: 'rgba(246, 231, 184, 0.25)', color: PAPER }}
               aria-label="Close"
             >
               <X size={20} />
@@ -671,13 +673,13 @@ export default function ProductPage() {
         <div
           onClick={() => setSizeChartOpen(false)}
           className="fixed inset-0 flex items-center justify-center p-6"
-          style={{ background: 'rgba(45, 16, 40, 0.9)', zIndex: 10000 }}
+          style={{ background: 'rgba(17, 17, 17, 0.9)', zIndex: 10000 }}
         >
           <div className="relative w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setSizeChartOpen(false)}
               className="absolute -top-11 right-0 sm:-top-2 sm:-right-11 w-9 h-9 flex items-center justify-center rounded-full"
-              style={{ background: 'rgba(248, 215, 227, 0.25)', color: PAPER }}
+              style={{ background: 'rgba(246, 231, 184, 0.25)', color: PAPER }}
               aria-label="Close size guide"
             >
               <X size={20} />

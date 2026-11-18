@@ -15,41 +15,41 @@ module.exports = {
           '100%': { transform: 'translateX(-50%)' },
         },
       },
-      // Palette (new theme)
-      //   Primary    #C2185B  buttons on hover, badges, links, savings, active states
-      //   Secondary  #D4A017  thin rings and dividers (decorative only)
-      //   Background #FFF8F3  soft bands (pages themselves are pure white)
-      //   Text       #2D1028  headings + body, dark buttons
-      //   Accent     #F8D7E3  washes, focus rings, soft badges
+      // Palette (SS Trendy Shopee logo theme)
+      //   Primary    #A67C00  deep gold: buttons on hover, badges, links, savings, active states
+      //   Secondary  #D4AF37  metallic gold: thin rings and dividers (decorative only)
+      //   Background #FFFBF0  logo cream: soft bands (pages themselves are pure white)
+      //   Text       #1A1A1A  logo black: headings + body, dark buttons
+      //   Accent     #F3E5B5  pale gold: washes, focus rings, soft badges
       //
       // The original key names are kept so any existing `bg-brand-*` /
       // `text-brand-*` classes keep working and pick up the new palette.
       colors: {
         brand: {
           // ── New semantic names (use these in new code) ──
-          primary: '#C2185B',
-          secondary: '#D4A017',
-          background: '#FFF8F3',
-          text: '#2D1028',
-          accent: '#F8D7E3',
+          primary: '#A67C00',
+          secondary: '#D4AF37',
+          background: '#FFFBF0',
+          text: '#1A1A1A',
+          accent: '#F3E5B5',
 
           // ── Original keys, remapped ──
-          pink: '#C2185B',       // primary
-          magenta: '#C2185B',    // primary brand color (wordmark, CTAs, prices)
-          rose: '#2D1028',       // hover/secondary tone — deep text colour
-          green: '#F8D7E3',      // neutral accent slot is now the soft pink accent
-          deepgreen: '#2D1028',  // darkest tone
-          gold: '#D4A017',       // secondary — decorative rings and dividers only
-          cream: '#FFF8F3',      // soft band background
-          ink: '#2D1028',        // text color
+          pink: '#A67C00',       // primary
+          magenta: '#A67C00',    // primary brand color (wordmark, CTAs, prices)
+          rose: '#1A1A1A',       // hover/secondary tone — deep text colour
+          green: '#F3E5B5',      // neutral accent slot is now the pale gold accent
+          deepgreen: '#1A1A1A',  // darkest tone
+          gold: '#D4AF37',       // secondary — decorative rings and dividers only
+          cream: '#FFFBF0',      // soft band background
+          ink: '#1A1A1A',        // text color
 
-          // ── Helpers carried over from the navy/gold theme ──
-          navy: '#C2185B',       // was primary navy → primary pink
-          navydark: '#2D1028',   // was deep navy → text colour
-          goldpale: '#F8D7E3',   // was pale gold → accent
-          goldwash: '#FFF8F3',   // tint for hovers and placeholders
-          inksoft: 'rgba(45, 16, 40, 0.72)', // secondary text
-          line: 'rgba(45, 16, 40, 0.12)'     // hairline borders
+          // ── Helpers carried over from the earlier theme ──
+          navy: '#A67C00',       // primary
+          navydark: '#1A1A1A',   // text colour
+          goldpale: '#F3E5B5',   // accent
+          goldwash: '#FFFBF0',   // tint for hovers and placeholders
+          inksoft: 'rgba(26, 26, 26, 0.72)', // secondary text
+          line: 'rgba(26, 26, 26, 0.12)'     // hairline borders
         }
       },
       fontFamily: {
@@ -57,9 +57,9 @@ module.exports = {
         body: ['var(--font-body)']
       },
       boxShadow: {
-        soft: '0 8px 30px -8px rgba(45, 16, 40, 0.15)',
-        card: '0 18px 36px rgba(45, 16, 40, 0.12)',
-        glow: '0 10px 24px rgba(194, 24, 91, 0.25)'
+        soft: '0 8px 30px -8px rgba(26, 26, 26, 0.15)',
+        card: '0 18px 36px rgba(26, 26, 26, 0.12)',
+        glow: '0 10px 24px rgba(166, 124, 0, 0.25)'
       },
       borderRadius: {
         xl2: '1.25rem',   // 20px — cards

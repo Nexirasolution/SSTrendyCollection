@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
-// Palette: Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
+// Palette: Primary #A67C00 · Secondary #D4AF37 · Background #FFFBF0 · Text #1A1A1A · Accent #F3E5B5
 // Keep in sync with AdminShell, AdminDashboard and the storefront components.
-const PRIMARY = '#C2185B';
-const SECONDARY = '#D4A017';
-const BG = '#FFF8F3';
-const INK = '#2D1028';
-const INK_SOFT = 'rgba(45, 16, 40, 0.6)';
-const LINE = '#F1DCE4'; // soft pink border, derived from the accent
+const PRIMARY = '#A67C00';
+const SECONDARY = '#D4AF37';
+const BG = '#FFFBF0';
+const INK = '#1A1A1A';
+const INK_SOFT = 'rgba(26, 26, 26, 0.6)';
+const LINE = '#EADFC0'; // soft gold border, derived from the accent
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -38,11 +38,15 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: BG }}>
+    // fixed + inset-0 + high z-index: covers the whole screen, so the admin sidebar behind it is hidden
+    <div
+      className="fixed inset-0 z-[100] overflow-auto flex items-center justify-center px-4"
+      style={{ background: BG }}
+    >
       <form onSubmit={submit} className="w-full max-w-[340px]">
         <div className="text-center mb-8">
           <h1 className="text-xl font-medium" style={{ color: INK }}>
-            Aara Handmade Bangles
+            SS Trendy Shopee
           </h1>
           <p className="text-xs mt-1.5" style={{ color: INK_SOFT }}>Admin sign in</p>
         </div>

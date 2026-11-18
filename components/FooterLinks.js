@@ -4,16 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, ChevronDown } from 'lucide-react';
 
-// Design tokens — keep in sync with the homepage, Navbar, CouponMarquee and Footer.
-//   Primary    #C2185B  hover colour, chevrons, icon hover
-//   Background #C2185B  (set in Footer) — text here is white
-//   Accent     #F8D7E3  icon hover wash
-const PRIMARY = '#C2185B';
-const ACCENT = '#F8D7E3';
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, Navbar, BottomNav, CouponMarquee and Footer.
+//   Gold       #D4A52A  headings, hover colour, chevrons, icon rings
+//   Background #1A1A1A  (set in Footer) — text here is cream
+//   Cream      #FFF8E7  link and body text
+const PRIMARY = '#D4A52A';
+const ACCENT = '#D4A52A';
 
-const WHITE_SOFT = 'rgba(255, 255, 255, 0.88)';
-const WHITE = '#FFFFFF';
-const LINE = 'rgba(255, 255, 255, 0.28)'; // soft white hairlines on the pink footer
+const CREAM = '#FFF8E7';
+const CREAM_SOFT = 'rgba(255, 248, 231, 0.88)';
+const LINE = 'rgba(212, 165, 42, 0.28)'; // soft gold hairlines on the dark footer
 
 // Actual WhatsApp glyph (brand mark) — lucide's MessageCircle is a generic
 // chat bubble, not the real logo, so this is an inline SVG instead.
@@ -34,13 +35,13 @@ function AccordionSection({ id, title, openSection, onToggle, children }) {
         onClick={() => onToggle(id)}
         className="w-full flex items-center justify-between py-3.5 sm:py-0 sm:mb-4 sm:pointer-events-none sm:cursor-default"
       >
-        <span className="font-bold text-[12px] tracking-wide uppercase" style={{ color: WHITE }}>
+        <span className="font-bold text-[12px] tracking-wide uppercase" style={{ color: PRIMARY }}>
           {title}
         </span>
         <ChevronDown
           size={16}
           className="sm:hidden transition-transform duration-200"
-          style={{ color: WHITE, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          style={{ color: PRIMARY, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
         />
       </button>
 
@@ -51,7 +52,7 @@ function AccordionSection({ id, title, openSection, onToggle, children }) {
   );
 }
 
-// Link hover: text turns soft pink (accent) with an underline.
+// Link hover: text turns gold (accent) with an underline.
 function hoverOn(el) {
   el.style.color = ACCENT;
   el.style.textDecoration = 'underline';
@@ -63,9 +64,9 @@ function hoverOff(el, color) {
   el.style.textDecoration = 'none';
 }
 
-// Round social buttons: soft pink ring, fill white on hover.
+// Round social buttons: gold ring, fill gold with black icon on hover.
 const SOCIAL_BTN =
-  'flex items-center justify-center w-10 h-10 rounded-full transition-all hover:-translate-y-0.5 hover:bg-white hover:border-white hover:text-[#C2185B]';
+  'flex items-center justify-center w-10 h-10 rounded-full transition-all hover:-translate-y-0.5 hover:bg-[#D4A52A] hover:border-[#D4A52A] hover:text-[#111111]';
 
 export default function FooterLinks({
   categories,
@@ -89,9 +90,9 @@ export default function FooterLinks({
                 <Link
                   href={`/category/${cat.slug}`}
                   className="text-[13px] font-bold transition-colors"
-                  style={{ color: WHITE }}
+                  style={{ color: CREAM }}
                   onMouseEnter={(e) => hoverOn(e.currentTarget)}
-                  onMouseLeave={(e) => hoverOff(e.currentTarget, WHITE)}
+                  onMouseLeave={(e) => hoverOff(e.currentTarget, CREAM)}
                 >
                   {cat.name}
                 </Link>
@@ -110,9 +111,9 @@ export default function FooterLinks({
                 <Link
                   href={link.href}
                   className="text-[13px] font-bold transition-colors"
-                  style={{ color: WHITE }}
+                  style={{ color: CREAM }}
                   onMouseEnter={(e) => hoverOn(e.currentTarget)}
-                  onMouseLeave={(e) => hoverOff(e.currentTarget, WHITE)}
+                  onMouseLeave={(e) => hoverOff(e.currentTarget, CREAM)}
                 >
                   {link.label}
                 </Link>
@@ -132,7 +133,7 @@ export default function FooterLinks({
               rel="noreferrer"
               aria-label="WhatsApp"
               className={SOCIAL_BTN}
-              style={{ background: 'transparent', border: `1px solid ${ACCENT}`, color: WHITE }}
+              style={{ background: 'transparent', border: `1px solid ${ACCENT}`, color: CREAM }}
             >
               <WhatsAppIcon size={17} />
             </a>
@@ -143,33 +144,33 @@ export default function FooterLinks({
               rel="noreferrer"
               aria-label="Instagram"
               className={SOCIAL_BTN}
-              style={{ background: 'transparent', border: `1px solid ${ACCENT}`, color: WHITE }}
+              style={{ background: 'transparent', border: `1px solid ${ACCENT}`, color: CREAM }}
             >
               <Instagram size={17} strokeWidth={1.75} />
             </a>
           </div>
 
-          <div className="text-xs space-y-3 leading-relaxed font-medium" style={{ color: WHITE_SOFT }}>
+          <div className="text-xs space-y-3 leading-relaxed font-medium" style={{ color: CREAM_SOFT }}>
             <p>
-              <span className="font-bold" style={{ color: WHITE }}>WhatsApp</span><br />
+              <span className="font-bold" style={{ color: CREAM }}>WhatsApp</span><br />
               <a
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
                 className="transition-colors"
                 onMouseEnter={(e) => hoverOn(e.currentTarget)}
-                onMouseLeave={(e) => hoverOff(e.currentTarget, WHITE_SOFT)}
+                onMouseLeave={(e) => hoverOff(e.currentTarget, CREAM_SOFT)}
               >
                 {phoneDisplay}
               </a>
             </p>
             <p>
-              <span className="font-bold" style={{ color: WHITE }}>Email</span><br />
+              <span className="font-bold" style={{ color: CREAM }}>Email</span><br />
               <a
                 href={`mailto:${email}`}
                 className="break-all transition-colors"
                 onMouseEnter={(e) => hoverOn(e.currentTarget)}
-                onMouseLeave={(e) => hoverOff(e.currentTarget, WHITE_SOFT)}
+                onMouseLeave={(e) => hoverOff(e.currentTarget, CREAM_SOFT)}
               >
                 {email}
               </a>

@@ -7,28 +7,28 @@ import { formatINR } from '@/lib/utils';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
 // Design tokens — keep in sync with the homepage, ProductCard, ProductPage and Footer.
-//   Primary    #C2185B  prices' accents, icons, button hover
-//   Secondary  #D4A017  thin divider (decorative only)
+//   Primary    #A67C00  prices' accents, icons, button hover
+//   Secondary  #D4AF37  thin divider (decorative only)
 //   Background #FFFFFF  pure white page and cards
-//   Text       #2D1028  headings + body, dark buttons
-//   Accent     #F8D7E3  soft hovers
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+//   Text       #1A1A1A  headings + body, dark buttons
+//   Accent     #F3E5B5  soft hovers
+const PRIMARY = '#A67C00';
+const GOLD = '#D4AF37';
+const INK = '#1A1A1A';
+const ACCENT = '#F3E5B5';
 const PAPER = '#FFFFFF';
 
-const INK_SOFT = 'rgba(45, 16, 40, 0.72)';
-const LINE = 'rgba(45, 16, 40, 0.12)';
+const INK_SOFT = 'rgba(26, 26, 26, 0.72)';
+const LINE = 'rgba(26, 26, 26, 0.12)';
 const FONT_SERIF = "'Playfair Display', Georgia, 'Times New Roman', serif";
 
 // Rounding scale: cart rows + summary 20px · thumbnails 12px · buttons and stepper fully round.
 const R_LG = '20px';
 const R_MD = '12px';
 
-// Dark pill, turns primary pink on hover — same as the other pages.
+// Dark pill, turns primary gold on hover — same as the other pages.
 const BTN_PRIMARY =
-  'rounded-full transition-all active:scale-[0.98] active:opacity-80 bg-[#2D1028] text-white border border-[#2D1028] hover:bg-[#C2185B] hover:border-[#C2185B] hover:shadow-[0_10px_24px_rgba(194,24,91,0.25)]';
+  'rounded-full transition-all active:scale-[0.98] active:opacity-80 bg-[#1A1A1A] text-white border border-[#1A1A1A] hover:bg-[#A67C00] hover:border-[#A67C00] hover:shadow-[0_10px_24px_rgba(166,124,0,0.25)]';
 
 export default function CartPage() {
   const { items, updateQty, removeItem, subtotal } = useCart();
@@ -67,7 +67,7 @@ export default function CartPage() {
                 background: PAPER,
                 border: `1px solid ${LINE}`,
                 borderRadius: R_LG,
-                boxShadow: '0 10px 24px rgba(45, 16, 40, 0.05)',
+                boxShadow: '0 10px 24px rgba(26, 26, 26, 0.05)',
               }}
             >
               {/* Product image */}
@@ -94,7 +94,7 @@ export default function CartPage() {
                   >
                     <button
                       onClick={() => updateQty(key, item.qty - 1)}
-                      className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F8D7E3] active:opacity-60"
+                      className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F3E5B5] active:opacity-60"
                       style={{ color: INK }}
                       aria-label="Decrease quantity"
                     >
@@ -105,7 +105,7 @@ export default function CartPage() {
                     </span>
                     <button
                       onClick={() => updateQty(key, item.qty + 1)}
-                      className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F8D7E3] active:opacity-60"
+                      className="w-8 h-8 rounded-full text-base font-bold leading-none transition-colors hover:bg-[#F3E5B5] active:opacity-60"
                       style={{ color: INK }}
                       aria-label="Increase quantity"
                     >
@@ -115,7 +115,7 @@ export default function CartPage() {
 
                   <button
                     onClick={() => removeItem(key)}
-                    className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:bg-[#F8D7E3] hover:text-[#C2185B] active:opacity-60"
+                    className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:bg-[#F3E5B5] hover:text-[#A67C00] active:opacity-60"
                     style={{ color: INK_SOFT }}
                     aria-label="Remove item"
                   >

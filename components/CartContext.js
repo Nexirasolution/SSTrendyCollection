@@ -6,21 +6,22 @@ import toast from 'react-hot-toast';
 const CartContext = createContext(null);
 const STORAGE_KEY = 'ahb_cart_v1';
 
-// ── Brand tokens — keep in sync with Navbar, ProductCard, CouponMarquee and the homepage ──
-//   Primary    #C2185B  success marker, brand label
-//   Secondary  #D4A017  decorative only (not used for toast status)
-//   Background #FFF8F3  cream
-//   Text       #2D1028  toast text, warning marker
-//   Accent     #F8D7E3  soft pink
-const WHITE    = '#FFFFFF';
-const PRIMARY  = '#C2185B';
-const GOLD     = '#D4A017';
-const CREAM    = '#FFF8F3';
-const INK      = '#2D1028';
-const ACCENT   = '#F8D7E3';
-const INK_SOFT = 'rgba(45, 16, 40, 0.68)';
-const HAIRLINE = 'rgba(45, 16, 40, 0.12)';
-const RUST     = '#B0503A'; // status color for out-of-stock errors — kept red on purpose
+// ── Brand tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+//    Keep in sync with BottomNav, Navbar, ProductCard, CouponMarquee and the homepage ──
+//   Gold       #D4A52A  success marker, toast accent border
+//   Gold Deep  #9A7414  brand label text (darker for contrast on white)
+//   Background #FFF8E7  cream
+//   Text       #111111  toast text, warning marker (logo black)
+//   Accent     #F6E7B8  soft gold
+const WHITE     = '#FFFFFF';
+const PRIMARY   = '#D4A52A';
+const GOLD_DEEP = '#9A7414';
+const CREAM     = '#FFF8E7';
+const INK       = '#111111';
+const ACCENT    = '#F6E7B8';
+const INK_SOFT  = 'rgba(17, 17, 17, 0.68)';
+const HAIRLINE  = 'rgba(17, 17, 17, 0.12)';
+const RUST      = '#B0503A'; // status color for out-of-stock errors — kept red on purpose
 
 const toastBase = {
   duration: 2500,
@@ -32,7 +33,7 @@ const toastBase = {
     background: WHITE,
     borderRadius: '12px',
     padding: '10px 14px',
-    boxShadow: '0 8px 24px rgba(45, 16, 40, 0.12)',
+    boxShadow: '0 8px 24px rgba(17, 17, 17, 0.12)',
     border: `1px solid ${HAIRLINE}`,
     borderLeft: `3px solid ${PRIMARY}`,
   },
@@ -43,8 +44,8 @@ function brandToast(message, opts = {}) {
     (t) => (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <span>{message}</span>
-        <span style={{ fontSize: 9, color: PRIMARY, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
-         Aara Creation
+        <span style={{ fontSize: 9, color: GOLD_DEEP, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          SS Trendy Shopee
         </span>
       </div>
     ),

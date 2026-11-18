@@ -78,7 +78,7 @@ export default async function CourierBillPage({ params }) {
 
         {/* From */}
         <p className="text-xs font-medium mt-5 mb-1" style={{ color: NAVY }}>Sent by</p>
-        <p className="text-sm" style={{ color: INK }}>{settings?.storeName || 'Aara Handmade Bangles'}</p>
+        <p className="text-sm" style={{ color: INK }}>{settings?.storeName || 'SS Trendy Shopee'}</p>
         <p className="text-sm" style={{ color: INK_SOFT }}>{settings?.address || 'Tamil Nadu'}</p>
 
         {/* Shipment details */}

@@ -7,19 +7,20 @@ import FooterLinks from './FooterLinks';
 const display = Fraunces({ subsets: ['latin'], weight: ['700'], variable: '--font-display' });
 const body = Inter({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-body' });
 
-// Design tokens — keep in sync with the homepage, Navbar, CouponMarquee and FooterLinks.
-//   Primary    #C2185B  hover colour, pin icon
-//   Secondary  #D4A017  thin rings and dividers (decorative only)
-//   Background #C2185B  footer body (white text on top)
-//   Text       #2D1028  headings + body, bottom bar
-//   Accent     #F8D7E3  pills, bottom-bar text
-const PRIMARY = '#C2185B';
-const GOLD = '#D4A017';
-const INK = '#2D1028';
-const ACCENT = '#F8D7E3';
+// Design tokens — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Keep in sync with the homepage, Navbar, BottomNav, CouponMarquee and FooterLinks.
+//   Primary    #D4A52A  gold — hover colour, pin icon, dividers
+//   Background #1A1A1A  footer body (cream text on top)
+//   Text       #111111  bottom bar, pill text
+//   Accent     #FFF8E7  cream — pills, bottom-bar text
+const PRIMARY = '#D4A52A';
+const GOLD = '#D4A52A';
+const INK = '#111111';
+const FOOTER_BG = '#1A1A1A';
+const ACCENT = '#FFF8E7';
 const WHITE = '#FFFFFF';
 
-const WHITE_SOFT = 'rgba(255, 255, 255, 0.88)'; // soft white text on the pink footer
+const WHITE_SOFT = 'rgba(255, 248, 231, 0.88)'; // soft cream text on the dark footer
 
 async function getCategories() {
   await dbConnect();
@@ -28,12 +29,12 @@ async function getCategories() {
 }
 
 export default async function Footer() {
-  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP || '918778695195';
-  const phoneDisplay = '+91 87786 95195';
-  const email = 'shalu199631@gmail.com';
+  const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP || '919087388988';
+  const phoneDisplay = '+91 90873 88988';
+  const email = 'sstrendyshopeeofficial@gmail.com';
   const instagram =
     process.env.NEXT_PUBLIC_INSTAGRAM ||
-    'https://www.instagram.com/aara_handmade_bangles';
+    'https://www.instagram.com/'; // TODO: put the SS Trendy Shopee Instagram link here
   const categories = await getCategories();
 
   const quickLinks = [
@@ -47,22 +48,28 @@ export default async function Footer() {
   return (
     <footer
       className={`${body.className} mt-16`}
-      style={{ background: PRIMARY, borderTop: `1px solid ${GOLD}` }}
+      style={{ background: FOOTER_BG, borderTop: `1px solid ${GOLD}` }}
     >
       <div className="max-w-7xl mx-auto px-4 py-14 grid grid-cols-1 sm:grid-cols-12 gap-10 sm:gap-8">
 
         {/* Brand column */}
         <div className="sm:col-span-4">
-          <h3 className={`${display.className} text-2xl leading-tight mb-4`} style={{ color: WHITE, fontWeight: 700 }}>
-            Aara Creation
+          <h3 className={`${display.className} text-2xl leading-tight mb-1`} style={{ color: PRIMARY, fontWeight: 700 }}>
+            SS Trendy Shopee
           </h3>
+          <p
+            className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4"
+            style={{ color: WHITE_SOFT }}
+          >
+            Handmades &amp; Frocks
+          </p>
 
           <p className="flex items-start gap-1.5 text-xs font-medium leading-relaxed" style={{ color: WHITE_SOFT }}>
-            <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: ACCENT }} />
+            <MapPin size={14} className="shrink-0 mt-0.5" style={{ color: PRIMARY }} />
             <span>
-              No. 95, Thiruvallur Street,<br />
-              Mettu Mangalam, Thirukazhukundram,<br />
-              Chengalpattu District, Tamil Nadu 603109
+              5th Cross, Water Board Colony,<br />
+              Alagapuram, Salem,<br />
+              Tamil Nadu 636016
             </span>
           </p>
 
@@ -86,14 +93,14 @@ export default async function Footer() {
         />
       </div>
 
-      {/* Bottom bar — dark, rounded top corners, bookends the coupon marquee */}
+      {/* Bottom bar — black, rounded top corners, bookends the coupon marquee */}
       <div
         className="rounded-t-[24px]"
-        style={{ background: INK, borderTop: `1px solid ${GOLD}` }}
+        style={{ background: '#000000', borderTop: `1px solid ${GOLD}` }}
       >
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-[11px] font-medium" style={{ color: ACCENT }}>
-            © {new Date().getFullYear()} Aara Handmade Bangles. All rights reserved.
+            © {new Date().getFullYear()} SS Trendy Shopee. All rights reserved.
           </p>
 
           <a

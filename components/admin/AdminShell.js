@@ -8,21 +8,22 @@ import {
   Clapperboard, Star, Ticket, Layers, FileBarChart, Settings as SettingsIcon, Menu, X, LogOut
 } from 'lucide-react';
 
-// Palette: Primary #C2185B · Secondary #D4A017 · Background #FFF8F3 · Text #2D1028 · Accent #F8D7E3
+// Palette — matched to the SS Trendy Shopee logo (black, gold, cream).
+// Primary #D4A52A · Secondary #D4A52A · Background #FFF8E7 · Text #111111 · Accent #FFF8E7
 // Keep in sync with the storefront components.
-const PRIMARY = '#C2185B';
-const PRIMARY_DARK = '#2D1028';   // deep plum (text color) used as the sidebar base
-const SECONDARY = '#D4A017';
-const BG = '#FFF8F3';
-const TEXT = '#2D1028';
-const ACCENT = '#F8D7E3';
+const PRIMARY = '#D4A52A';
+const PRIMARY_DARK = '#111111';   // logo black, used as the sidebar base
+const SECONDARY = '#D4A52A';
+const BG = '#FFF8E7';
+const TEXT = '#111111';
+const ACCENT = '#FFF8E7';
 const WHITE = '#FFFFFF';
 
 // Sidebar (dark) tokens
 const SIDE_BG = PRIMARY_DARK;
-const SIDE_TEXT = 'rgba(248, 215, 227, 0.75)'; // muted accent pink
-const SIDE_LINE = 'rgba(248, 215, 227, 0.18)';
-const SIDE_HOVER = 'rgba(248, 215, 227, 0.10)';
+const SIDE_TEXT = 'rgba(255, 248, 231, 0.75)'; // muted cream
+const SIDE_LINE = 'rgba(212, 165, 42, 0.25)';
+const SIDE_HOVER = 'rgba(212, 165, 42, 0.12)';
 
 // Light-area tokens
 const INK = TEXT;
@@ -58,7 +59,7 @@ export default function AdminShell({ admin, children }) {
       {open && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(45, 16, 40, 0.5)' }}
+          style={{ background: 'rgba(17, 17, 17, 0.5)' }}
           onClick={() => setOpen(false)}
         />
       )}
@@ -80,7 +81,7 @@ export default function AdminShell({ admin, children }) {
         >
           <div className="flex flex-col leading-tight">
             <span className="font-medium text-base" style={{ color: ACCENT }}>
-              Aara Handmade Bangles
+               SS Trendy Shopee
             </span>
             <span
               className="text-[10px] tracking-widest uppercase mt-0.5"
@@ -112,8 +113,9 @@ export default function AdminShell({ admin, children }) {
                 style={{
                   borderRadius: '4px',
                   background: active ? PRIMARY : 'transparent',
-                  color: active ? WHITE : SIDE_TEXT,
-                  borderLeft: `3px solid ${active ? SECONDARY : 'transparent'}`,
+                  color: active ? PRIMARY_DARK : SIDE_TEXT,
+                  fontWeight: active ? 700 : undefined,
+                  borderLeft: `3px solid ${active ? ACCENT : 'transparent'}`,
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
@@ -128,7 +130,7 @@ export default function AdminShell({ admin, children }) {
                   }
                 }}
               >
-                <Icon size={17} style={{ color: active ? SECONDARY : 'inherit' }} />
+                <Icon size={17} style={{ color: active ? PRIMARY_DARK : 'inherit' }} />
                 {label}
               </Link>
             );
@@ -170,7 +172,7 @@ export default function AdminShell({ admin, children }) {
             <Menu size={22} />
           </button>
           <span className="font-medium text-base" style={{ color: INK }}>
-            Aara Handmade Bangles Admin
+             SS Trendy Admin
           </span>
         </header>
 
