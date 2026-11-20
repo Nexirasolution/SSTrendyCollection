@@ -34,7 +34,7 @@ export default async function Footer() {
   const email = 'sstrendyshopeeofficial@gmail.com';
   const instagram =
     process.env.NEXT_PUBLIC_INSTAGRAM ||
-    'https://www.instagram.com/'; // TODO: put the SS Trendy Shopee Instagram link here
+    'https://www.instagram.com/ss_trendy_shopee?fqnt=MXdodnVjcGJ6YTBxcQ=='; // TODO: put the SS Trendy Shopee Instagram link here
   const categories = await getCategories();
 
   const quickLinks = [
