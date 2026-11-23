@@ -6,7 +6,14 @@ const CategorySchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },
     image: { type: String, default: '' },
     description: { type: String, default: '' },
-    sizes: [{ type: String }], // available size options for filter, e.g. S,M,L,XL,XXL
+
+    // Decides which product form the admin sees for products in this
+    // category: 'jewellery' → material / finish / stone / set size,
+    // 'dress' → fabric / sleeve / zip / pant / shawl options.
+    type: { type: String, enum: ['jewellery', 'dress'], default: 'jewellery' },
+
+    // Available size options for filter, e.g. 2.2, 2.4 … (jewellery) or S, M, L, XL, XXL (dress)
+    sizes: [{ type: String }],
 
     // One or more fallback size chart images, shown as a gallery on the
     // storefront for any product in this category that has no size chart

@@ -5,32 +5,27 @@ import Category from '@/models/Category';
 import slugify from 'slugify';
 import { requireAdmin } from '@/lib/apiAuth';
 import { OCCASIONS } from '@/lib/jewellery';
+import { resolveCategoryType, sanitizeByType } from '@/lib/categoryType';
+import { productMinPrice } from '@/lib/pricing';
 
 // POST /api/products/bulk
-// body: {
-//   category, skuPrefix, description,
-//   material, finish, stoneType,          (optional text, e.g. "Silk Thread", "Gold Plated", "Kundan")
-//   piecesInSet,                          (optional, default 1 — e.g. 4 for a set of 4 bangles)
-//   occasion: [ 'Daily Wear' | 'Festive' | 'Wedding' | 'Party' | 'Office' | 'Gifting', ... ],
-//   careInstructions,
+// body (common): {
+//   category, skuPrefix, description, careInstructions, occasion: [...],
 //   weight (grams per purchase unit, required),
-//   price, compareAtPrice, sizes: [{ size, stock }],   (size = "2.4" etc. or "Free Size")
-//   images: [url, url, ...], tags,
-//   isReadyToShip, sizeChart: [url, url, ...]
+//   price, compareAtPrice, sizes: [{ size, stock }],
+//   images: [url, ...], tags, isReadyToShip, sizeChart: [url, ...]
 // }
+// body (jewellery categories): material, finish, stoneType, piecesInSet
+// body (dress categories):     fabric, sleeveOptions, zipOptions, pantOptions, shawlOptions
+//                              (each option list = [{ label, price }])
+//
+// The category's `type` decides which of the type-specific fields are kept;
+// the rest are dropped.
+//
 // Creates ONE product per image.
 // - Title = auto-derived from the CATEGORY name + zero-padded number,
-//   e.g. category "Silk Thread Bangles" -> SILKTHREADBANGLES001, ...002...
-//   (continues from the highest existing number for that title-code in
-//   that category, so repeated bulk uploads don't collide)
-// - SKU = admin-typed short code + zero-padded number, e.g. "MT" -> MT001, MT002...
-//   (continues from the highest existing SKU with that code, globally,
-//   since SKU is a global-unique field)
-// - Every other field, if provided, is applied identically to every product
-//   created in this batch. weight is the shipping weight of one purchase
-//   unit (one pair / set / piece) in grams and is required.
-//   sizeChart (size-guide images) is optional — if omitted, the storefront
-//   falls back to the category's own size chart images.
+//   e.g. "Silk Thread Bangles" -> SILKTHREADBANGLES001, ...002...
+// - SKU = admin-typed short code + zero-padded number, e.g. "MT" -> MT001...
 export const POST = requireAdmin(async (req) => {
   try {
     await dbConnect();
@@ -40,10 +35,6 @@ export const POST = requireAdmin(async (req) => {
       category,
       skuPrefix,
       description = '',
-      material = '',
-      finish = '',
-      stoneType = '',
-      piecesInSet = 1,
       occasion = [],
       careInstructions = '',
       weight = 0,
@@ -73,27 +64,28 @@ export const POST = requireAdmin(async (req) => {
     }
     const sizeEntries = (sizes || [])
       .filter((s) => s.size)
-      .map((s) => ({ size: String(s.size).trim(), stock: Number(s.stock) || 0 }));
+      .map((s) => {
+        const entry = { size: String(s.size).trim(), stock: Number(s.stock) || 0 };
+        // Optional per-size price; blank / 0 = use the batch price.
+        const sizePrice = Number(s.price);
+        if (sizePrice > 0) entry.price = sizePrice;
+        return entry;
+      });
     if (sizeEntries.length === 0) {
       return NextResponse.json({ error: 'At least one size with stock is required' }, { status: 400 });
     }
 
-    // Accept either an array of image URLs (current format) or a single
-    // legacy string, so older clients can't accidentally wipe the field.
     const sizeChartImages = Array.isArray(sizeChart)
       ? sizeChart.filter(Boolean)
       : (sizeChart ? [sizeChart] : []);
 
-    // Only keep occasions the storefront knows about, so a stale client
-    // can't store junk values.
     const occasionClean = Array.isArray(occasion)
       ? occasion.filter((o) => OCCASIONS.includes(o))
       : [];
 
-    const piecesInSetClean = Math.max(1, Math.floor(Number(piecesInSet)) || 1);
-
     const cat = await Category.findById(category);
     if (!cat) return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    const type = resolveCategoryType(cat);
 
     // --- Title code: auto-derived from the category name ---
     const titleCode = (cat.name || 'PRODUCT')
@@ -126,7 +118,7 @@ export const POST = requireAdmin(async (req) => {
       if (match) maxTitleNum = Math.max(maxTitleNum, parseInt(match[1], 10));
     }
 
-    // Continue SKU numbering from the highest existing SKUCODE### (global, SKU is unique across all products)
+    // Continue SKU numbering from the highest existing SKUCODE### (global)
     const existingSkus = await Product.find({
       sku: { $regex: `^${skuCode}\\d+$`, $options: 'i' },
     }).select('sku');
@@ -138,16 +130,32 @@ export const POST = requireAdmin(async (req) => {
       if (match) maxSkuNum = Math.max(maxSkuNum, parseInt(match[1], 10));
     }
 
+    // Type-specific fields, cleaned and filtered for this category's type.
+    const typeFields = sanitizeByType(
+      {
+        material: body.material,
+        finish: body.finish,
+        stoneType: body.stoneType,
+        piecesInSet: body.piecesInSet,
+        fabric: body.fabric,
+        sleeveOptions: body.sleeveOptions,
+        zipOptions: body.zipOptions,
+        pantOptions: body.pantOptions,
+        shawlOptions: body.shawlOptions,
+      },
+      type
+    );
+
     const created = [];
     const errors = [];
 
     for (let i = 0; i < images.length; i++) {
       const titleNum = maxTitleNum + i + 1;
-      const name = `${titleCode}${String(titleNum).padStart(3, '0')}`; // e.g. SILKTHREADBANGLES001
+      const name = `${titleCode}${String(titleNum).padStart(3, '0')}`;
       const slug = slugify(name, { lower: true });
 
       const skuNum = maxSkuNum + i + 1;
-      const sku = `${skuCode}${String(skuNum).padStart(3, '0')}`; // e.g. MT001
+      const sku = `${skuCode}${String(skuNum).padStart(3, '0')}`;
 
       try {
         const slugTaken = await Product.findOne({ slug });
@@ -177,16 +185,13 @@ export const POST = requireAdmin(async (req) => {
           sku,
           description,
           category: cat._id,
-          material: String(material || '').trim(),
-          finish: String(finish || '').trim(),
-          stoneType: String(stoneType || '').trim(),
-          piecesInSet: piecesInSetClean,
+          ...typeFields,
           occasion: occasionClean,
           careInstructions: String(careInstructions || '').trim(),
           weight: Number(weight),
           tags,
           variants: [variant],
-          basePrice: Number(price),
+          basePrice: productMinPrice([variant]),
           isReadyToShip: !!isReadyToShip,
           sizeChart: sizeChartImages,
         });

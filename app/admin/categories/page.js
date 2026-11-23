@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Pencil, X, Upload, Loader2, ArrowUp, ArrowDown, CornerDownRight } from 'lucide-react';
 import { BANGLE_SIZES } from '@/lib/jewellery';
+import { CATEGORY_TYPES, CLOTHING_SIZES, resolveCategoryType } from '@/lib/categoryType';
 
-const emptyForm = { name: '', slug: '', image: '', description: '', sizes: '', sortOrder: 0, sizeChart: [], parent: '' };
+const emptyForm = { name: '', slug: '', image: '', description: '', sizes: '', sortOrder: 0, sizeChart: [], parent: '', type: 'jewellery' };
 
 function normalizeSizeChart(value) {
   if (Array.isArray(value)) return value;
@@ -21,6 +22,7 @@ function parentIdOf(c) {
 // A single row in the category list — used for both top-level categories
 // and their subcategories (indented, with a corner-arrow icon).
 function CategoryRow({ category, indent, onMoveUp, onMoveDown, disableUp, disableDown, onEdit, onDelete, onAddSub }) {
+  const isDress = resolveCategoryType(category) === 'dress';
   return (
     <div className={`card-soft p-4 flex items-center gap-3 ${indent ? 'ml-8' : ''}`}>
       <div className="flex flex-col">
@@ -46,7 +48,12 @@ function CategoryRow({ category, indent, onMoveUp, onMoveDown, disableUp, disabl
         {category.image && <img src={category.image} alt={category.name} className="w-full h-full object-cover" />}
       </div>
       <div className="flex-1">
-        <p className="font-medium">{category.name}</p>
+        <p className="font-medium">
+          {category.name}
+          <span className="ml-2 align-middle text-[10px] font-semibold px-2 py-0.5 rounded-full border border-brand-ink/15 text-brand-ink/60">
+            {isDress ? 'Dress' : 'Jewellery'}
+          </span>
+        </p>
         <p className="text-xs text-brand-ink/50">
           /{category.slug} · order: {category.sortOrder ?? 0}
           {category.sizes?.length ? ` · sizes: ${category.sizes.join(', ')}` : ''}
@@ -85,6 +92,11 @@ export default function AdminCategoriesPage() {
 
   const topLevel = categories.filter((c) => !parentIdOf(c));
   const childrenOf = (id) => categories.filter((c) => parentIdOf(c) === id);
+  const typeOfCategory = (id) => resolveCategoryType(categories.find((c) => c._id === id));
+
+  const isDress = form.type === 'dress';
+  // A subcategory takes its parent's type, so the selector is locked for it.
+  const typeLocked = !!form.parent;
 
   function startEdit(c) {
     setEditingId(c._id);
@@ -96,7 +108,8 @@ export default function AdminCategoriesPage() {
       sizes: (c.sizes || []).join(', '),
       sortOrder: c.sortOrder ?? 0,
       sizeChart: normalizeSizeChart(c.sizeChart),
-      parent: parentIdOf(c) || ''
+      parent: parentIdOf(c) || '',
+      type: resolveCategoryType(c)
     });
     setPreview(c.image || '');
     setShowForm(true);
@@ -115,7 +128,7 @@ export default function AdminCategoriesPage() {
     setEditingId(null);
     const siblings = childrenOf(parentId);
     const maxOrder = siblings.reduce((max, c) => Math.max(max, c.sortOrder ?? 0), 0);
-    setForm({ ...emptyForm, parent: parentId, sortOrder: maxOrder + 1 });
+    setForm({ ...emptyForm, parent: parentId, type: typeOfCategory(parentId), sortOrder: maxOrder + 1 });
     setPreview('');
     setShowForm(true);
   }
@@ -123,6 +136,15 @@ export default function AdminCategoriesPage() {
   function closeForm() {
     setShowForm(false);
     setPreview('');
+  }
+
+  function handleParentChange(parentId) {
+    setForm((f) => ({
+      ...f,
+      parent: parentId,
+      // inherit the parent's type; with no parent the current type stays
+      type: parentId ? typeOfCategory(parentId) : f.type,
+    }));
   }
 
   async function handleFileChange(e) {
@@ -147,8 +169,7 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  // Size guide — supports multiple images. Selecting several files at once
-  // uploads each in turn and appends every resulting URL to the array.
+  // Size guide — supports multiple images.
   async function handleSizeChartFilesChange(e) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -185,7 +206,8 @@ export default function AdminCategoriesPage() {
       sizes: form.sizes.split(',').map((s) => s.trim()).filter(Boolean),
       sortOrder: Number(form.sortOrder) || 0,
       sizeChart: form.sizeChart || [],
-      parent: form.parent || null
+      parent: form.parent || null,
+      type: form.type
     };
     const url = editingId ? `/api/categories/${editingId}` : '/api/categories';
     const method = editingId ? 'PUT' : 'POST';
@@ -210,8 +232,7 @@ export default function AdminCategoriesPage() {
   }
 
   // Swap sortOrder with the neighboring category *within the same sibling
-  // list* (top-level categories reorder among themselves; subcategories
-  // reorder among their own siblings) and persist both.
+  // list* and persist both.
   async function move(list, index, direction) {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= list.length) return;
@@ -285,13 +306,12 @@ export default function AdminCategoriesPage() {
           </div>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
 
-          <input required placeholder="Category name (e.g. Silk Thread Bangles)" className="w-full border rounded-lg px-3 py-2 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <input required placeholder={isDress ? 'Category name (e.g. Cotton Kurtis)' : 'Category name (e.g. Silk Thread Bangles)'} className="w-full border rounded-lg px-3 py-2 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <input placeholder="Slug (auto if blank)" className="w-full border rounded-lg px-3 py-2 text-sm" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
 
           {/* Parent category — leave blank for a main/top-level category.
               Only top-level categories are selectable as a parent, so the
-              hierarchy stays two levels deep (category -> subcategory),
-              e.g. Bangles -> Silk Thread Bangles. */}
+              hierarchy stays two levels deep (category -> subcategory). */}
           <div>
             <label className="block text-xs text-brand-ink/50 mb-1">
               Parent category (leave blank for a main, top-level category)
@@ -299,7 +319,7 @@ export default function AdminCategoriesPage() {
             <select
               className="w-full border rounded-lg px-3 py-2 text-sm"
               value={form.parent || ''}
-              onChange={(e) => setForm({ ...form, parent: e.target.value })}
+              onChange={(e) => handleParentChange(e.target.value)}
             >
               <option value="">— None (main category) —</option>
               {topLevel.filter((c) => c._id !== editingId).map((c) => (
@@ -308,19 +328,49 @@ export default function AdminCategoriesPage() {
             </select>
           </div>
 
+          {/* Category type — decides which product upload form is used for
+              products in this category (jewellery or dress). */}
+          <div>
+            <label className="block text-xs text-brand-ink/50 mb-1">
+              Category type — decides the product upload form for this category
+              {typeLocked && ' (set by the parent category)'}
+            </label>
+            <select
+              className="w-full border rounded-lg px-3 py-2 text-sm disabled:bg-brand-cream disabled:text-brand-ink/50"
+              value={form.type}
+              disabled={typeLocked}
+              onChange={(e) => setForm({ ...form, type: e.target.value })}
+            >
+              {CATEGORY_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            {editingId && !typeLocked && childrenOf(editingId).length > 0 && (
+              <p className="text-xs text-brand-ink/40 mt-1">
+                Changing this also changes the type of its {childrenOf(editingId).length} subcategor{childrenOf(editingId).length > 1 ? 'ies' : 'y'}.
+              </p>
+            )}
+          </div>
+
           <div>
             <input
-              placeholder="Available sizes, comma separated (2.2, 2.4, 2.6, 2.8) — or Free Size"
+              placeholder={
+                isDress
+                  ? 'Available sizes, comma separated (S, M, L, XL, XXL) — or Free Size'
+                  : 'Available sizes, comma separated (2.2, 2.4, 2.6, 2.8) — or Free Size'
+              }
               className="w-full border rounded-lg px-3 py-2 text-sm"
               value={form.sizes}
               onChange={(e) => setForm({ ...form, sizes: e.target.value })}
             />
             <button
               type="button"
-              onClick={() => setForm({ ...form, sizes: BANGLE_SIZES.join(', ') })}
+              onClick={() => setForm({ ...form, sizes: (isDress ? CLOTHING_SIZES : BANGLE_SIZES).join(', ') })}
               className="text-xs text-brand-magenta underline mt-1"
             >
-              Use standard bangle sizes ({BANGLE_SIZES.join(', ')})
+              {isDress
+                ? `Use standard dress sizes (${CLOTHING_SIZES.join(', ')})`
+                : `Use standard bangle sizes (${BANGLE_SIZES.join(', ')})`}
             </button>
           </div>
 
@@ -330,7 +380,7 @@ export default function AdminCategoriesPage() {
               product in this category that has no size guide of its own */}
           <div>
             <label className="block text-xs text-brand-ink/50 mb-1">
-              Size guide images (optional — e.g. how to measure your bangle size; shown as a swipeable gallery on the storefront)
+              Size guide images (optional — {isDress ? 'e.g. a measurement chart for S–XXL' : 'e.g. how to measure your bangle size'}; shown as a swipeable gallery on the storefront)
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
               {(form.sizeChart || []).map((url, idx) => (

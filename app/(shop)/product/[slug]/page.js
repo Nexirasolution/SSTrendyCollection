@@ -8,6 +8,8 @@ import { ShoppingBag, Zap, Heart, Share2, ChevronLeft, ChevronRight, X } from 'l
 import { formatINR } from '@/lib/utils';
 import { getSizeStock, variantHasSizes } from '@/lib/stock';
 import { resizeImage, buildSrcSet } from '@/lib/image';
+import { resolveCategoryType, normalizeOptions } from '@/lib/categoryType';
+import { getSizePrice, variantMinPrice, hasVaryingPrices } from '@/lib/pricing';
 import { useCart } from '@/components/CartContext';
 import ColorSizeSelector from '@/components/ColorSizeSelector';
 import ProductCard from '@/components/ProductCard';
@@ -171,9 +173,27 @@ export default function ProductPage() {
   }
 
   const { product, related } = data;
+
+  // The category decides the layout: jewellery (square gallery, material /
+  // finish / stone details) or dress (portrait gallery, fabric + options).
+  const categoryType = resolveCategoryType(product.category);
+  const isDress = categoryType === 'dress';
+
   const images = activeVariant.images || [];
-  const unitPrice = activeVariant.price || 0;
-  const unitCompareAtPrice = activeVariant.compareAtPrice > activeVariant.price
+
+  // Products without sizes: no size is asked for, and stock comes from the variant.
+  const hasSizes = variantHasSizes(activeVariant);
+
+  // Price follows the selected size (a size can have its own price; blank
+  // falls back to the variant price). Before a size is picked on a product
+  // whose sizes differ in price, show the lowest price with "From".
+  const sizePricesVary = hasSizes && hasVaryingPrices(activeVariant);
+  const showFromPrice = sizePricesVary && !activeSize;
+  const unitPrice = hasSizes
+    ? (activeSize ? getSizePrice(activeVariant, activeSize) : variantMinPrice(activeVariant))
+    : (activeVariant.price || 0);
+  // Compare-at price is per variant; only shown while it is higher than the price.
+  const unitCompareAtPrice = activeVariant.compareAtPrice > unitPrice
     ? activeVariant.compareAtPrice
     : 0;
   const discount = unitCompareAtPrice > unitPrice
@@ -183,22 +203,36 @@ export default function ProductPage() {
   // Size guide: the product's own images, else the category's fallback.
   const sizeChartImages = product.sizeChart?.length ? product.sizeChart : (product.category?.sizeChart || []);
 
-  // Products without sizes: no size is asked for, and stock comes from the variant.
-  const hasSizes = variantHasSizes(activeVariant);
   // True when a stock cap can be applied (sizeless variant, or a size is picked).
   const stockKnown = !hasSizes || !!activeSize;
 
   const selectedSizeStock = getSizeStock(activeVariant, activeSize);
   const sizeOutOfStock = stockKnown && selectedSizeStock <= 0;
 
-  // Jewellery details shown under the price. Empty values are skipped.
-  const details = [
-    ['Material', product.material],
-    ['Finish', product.finish],
-    ['Stone work', product.stoneType],
-    ['Set contains', product.piecesInSet > 1 ? `${product.piecesInSet} pieces` : ''],
-    ['Occasion', product.occasion?.join(', ')],
-  ].filter(([, value]) => value);
+  // Details shown under the price. Empty values are skipped.
+  const details = (
+    isDress
+      ? [
+          ['Fabric', product.fabric],
+          ['Occasion', product.occasion?.join(', ')],
+        ]
+      : [
+          ['Material', product.material],
+          ['Finish', product.finish],
+          ['Stone work', product.stoneType],
+          ['Set contains', product.piecesInSet > 1 ? `${product.piecesInSet} pieces` : ''],
+          ['Occasion', product.occasion?.join(', ')],
+        ]
+  ).filter(([, value]) => value);
+
+  // Dress add-on option lists (sleeve / zip / pant / shawl). Always empty
+  // for jewellery so ColorSizeSelector shows nothing extra.
+  const optionProps = {
+    sleeveOptions: isDress ? normalizeOptions(product.sleeveOptions) : [],
+    zipOptions: isDress ? normalizeOptions(product.zipOptions) : [],
+    pantOptions: isDress ? normalizeOptions(product.pantOptions) : [],
+    shawlOptions: isDress ? normalizeOptions(product.shawlOptions) : [],
+  };
 
   // Max quantity the shopper can add.
   // Infinity = no cap (size not picked yet, or stock is not tracked).
@@ -287,10 +321,11 @@ export default function ProductPage() {
 
           {/* ── Gallery ── */}
           <div className="min-w-0 sm:sticky sm:top-10 sm:self-start">
-            {/* Square frame — jewellery photos are mostly 1:1 and the whole
-                piece (a stack of bangles, a necklace) must stay visible. */}
+            {/* Jewellery photos are mostly 1:1 and the whole piece (a stack of
+                bangles, a necklace) must stay visible, so the frame is square.
+                Dresses are shot in portrait, so they get a 3:4 frame. */}
             <div
-              className="relative w-full aspect-square overflow-hidden"
+              className={`relative w-full overflow-hidden ${isDress ? 'aspect-[3/4]' : 'aspect-square'}`}
               style={{ background: PAPER, borderRadius: R_LG, border: `1px solid ${HAIRLINE}` }}
             >
               {mainImage && (
@@ -301,11 +336,11 @@ export default function ProductPage() {
                   sizes={MAIN_SIZES}
                   alt={product.name}
                   width={720}
-                  height={720}
+                  height={isDress ? 960 : 720}
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
-                  className="absolute inset-0 w-full h-full object-contain sm:object-cover sm:object-center"
+                  className={`absolute inset-0 w-full h-full ${isDress ? 'object-cover object-top' : 'object-contain sm:object-cover sm:object-center'}`}
                 />
               )}
 
@@ -421,7 +456,7 @@ export default function ProductPage() {
               {product.name}
             </h1>
 
-            {(product.isReadyToShip || product.piecesInSet > 1) && (
+            {(product.isReadyToShip || (!isDress && product.piecesInSet > 1)) && (
               <div className="flex flex-wrap gap-2 mt-2 sm:mt-2.5">
                 {product.isReadyToShip && (
                   <span
@@ -431,7 +466,7 @@ export default function ProductPage() {
                     Ready to Ship
                   </span>
                 )}
-                {product.piecesInSet > 1 && (
+                {!isDress && product.piecesInSet > 1 && (
                   <span
                     className="inline-block px-3.5 py-1 text-[11px] font-bold uppercase tracking-wide w-fit rounded-full"
                     style={{ border: `1px solid ${GOLD_LINE}`, color: INK }}
@@ -444,6 +479,7 @@ export default function ProductPage() {
 
             <div className="flex items-baseline gap-3 mt-3 sm:mt-6 flex-wrap">
               <span className={`${display.className} text-[22px] sm:text-[26px]`} style={{ color: INK, fontWeight: 700 }}>
+                {showFromPrice && <span className="text-sm font-medium mr-1" style={{ color: NEUTRAL }}>From</span>}
                 {formatINR(unitPrice)}
               </span>
               {unitCompareAtPrice > unitPrice && (
@@ -461,7 +497,8 @@ export default function ProductPage() {
               )}
             </div>
 
-            {/* Jewellery details: material, finish, stone work, set size, occasion */}
+            {/* Product details — jewellery: material, finish, stone work, set size, occasion.
+                Dress: fabric, occasion. */}
             {details.length > 0 && (
               <dl className="mt-4 sm:mt-5 grid grid-cols-[104px_1fr] gap-x-4 gap-y-2 text-sm">
                 {details.map(([label, value]) => (
@@ -480,16 +517,15 @@ export default function ProductPage() {
                 onColorChange={handleColorChange}
                 activeSize={activeSize}
                 onSizeChange={handleSizeChange}
-                categoryType={product.category?.type}
+                categoryType={categoryType}
                 sizeChartImages={sizeChartImages}
                 onViewSizeChart={() => { setSizeChartIndex(0); setSizeChartOpen(true); }}
-                // Clothing-only props. Empty on purpose until ColorSizeSelector
-                // itself is cleaned up — then these four lines can be deleted.
-                sleeveOptions={[]}
-                zipOptions={[]}
-                pantOptions={[]}
-                shawlOptions={[]}
+                sleeveOptions={optionProps.sleeveOptions}
+                zipOptions={optionProps.zipOptions}
+                pantOptions={optionProps.pantOptions}
+                shawlOptions={optionProps.shawlOptions}
                 formatINR={formatINR}
+                getSizePrice={getSizePrice}
               />
             </div>
 
@@ -615,6 +651,7 @@ export default function ProductPage() {
         >
           <div className="shrink-0">
             <p className="text-base font-bold leading-none" style={{ color: INK }}>
+              {showFromPrice && <span className="text-[11px] font-medium mr-1" style={{ color: NEUTRAL }}>From</span>}
               {formatINR(unitPrice)}
             </p>
             {unitCompareAtPrice > unitPrice && (

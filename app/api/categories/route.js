@@ -5,12 +5,15 @@ import { dbConnect } from '@/lib/mongodb';
 import Category from '@/models/Category';
 import slugify from 'slugify';
 import { requireAdmin } from '@/lib/apiAuth';
+import { CATEGORY_TYPES } from '@/lib/categoryType';
+
+const TYPE_VALUES = CATEGORY_TYPES.map((t) => t.value);
 
 // GET /api/categories
 // Returns:
-//   categories — the flat, sorted list (unchanged shape, used by the admin
-//                 category dropdown/select and anywhere else that just
-//                 needs every category regardless of hierarchy)
+//   categories — the flat, sorted list (every document includes `type`:
+//                 'jewellery' | 'dress'; used by the admin product forms to
+//                 decide which fields to show)
 //   topLevel   — only the main (parent-less) categories, each with a
 //                 `subcategories` array attached. This is what the navbar
 //                 should fetch to render "Main Category -> Subcategory" menus.
@@ -42,9 +45,19 @@ export const POST = requireAdmin(async (req) => {
   if (exists) return NextResponse.json({ error: 'A category with this slug already exists' }, { status: 409 });
 
   // `parent` should be a category id or null/omitted for a main category.
-  // No extra validation of "only one level deep" is enforced server-side —
-  // the admin UI only offers top-level categories as parent options, which
+  // The admin UI only offers top-level categories as parent options, which
   // keeps the hierarchy to two levels in practice.
-  const category = await Category.create({ ...body, slug, parent: body.parent || null });
+  const parentId = body.parent || null;
+
+  // A subcategory always uses its parent's type, so a "Kurtis" subcategory
+  // under a dress category can never end up with the jewellery form.
+  let type = TYPE_VALUES.includes(body.type) ? body.type : 'jewellery';
+  if (parentId) {
+    const parent = await Category.findById(parentId).select('type');
+    if (!parent) return NextResponse.json({ error: 'Parent category not found' }, { status: 400 });
+    type = parent.type || 'jewellery';
+  }
+
+  const category = await Category.create({ ...body, slug, parent: parentId, type });
   return NextResponse.json({ category }, { status: 201 });
 });

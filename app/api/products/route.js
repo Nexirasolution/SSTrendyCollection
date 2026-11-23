@@ -7,10 +7,16 @@ import Category from '@/models/Category';
 import slugify from 'slugify';
 import { requireAdmin } from '@/lib/apiAuth';
 import { generateSku } from '@/lib/sku';
+import { productMinPrice } from '@/lib/pricing';
+import { resolveCategoryType, sanitizeByType } from '@/lib/categoryType';
 
 // GET /api/products?category=slug&size=2.4&minPrice=0&maxPrice=2000&sort=newest&page=1&limit=20&flag=bestseller
 //   Jewellery filters (all optional, exact match):
-//   &material=Silk%20Thread  &finish=Gold%20Plated  &stoneType=Kundan  &occasion=Wedding
+//   &material=Silk%20Thread  &finish=Gold%20Plated  &stoneType=Kundan
+//   Dress filters:
+//   &fabric=Cotton
+//   Shared:
+//   &occasion=Wedding
 // Pass limit=all to skip pagination entirely and return every matching product.
 export async function GET(req) {
   try {
@@ -27,15 +33,14 @@ export async function GET(req) {
         // Subcategory: only its own products.
         query.category = cat._id;
       } else {
-        // Main category: include its own products plus every subcategory's,
-        // so browsing a main category shows everything underneath it too.
+        // Main category: include its own products plus every subcategory's.
         const subcats = await Category.find({ parent: cat._id }).select('_id');
         const categoryIds = [cat._id, ...subcats.map((c) => c._id)];
         query.category = { $in: categoryIds };
       }
     }
 
-    // Bangle size (2.2, 2.4, ...) or "Free Size"
+    // Size: bangle size (2.2, 2.4 …), "Free Size", or a dress size (S, M, L …)
     const size = searchParams.get('size');
     if (size) query['variants.sizes.size'] = size;
 
@@ -48,6 +53,10 @@ export async function GET(req) {
 
     const stoneType = searchParams.get('stoneType');
     if (stoneType) query.stoneType = stoneType;
+
+    // Dress attribute filter
+    const fabric = searchParams.get('fabric');
+    if (fabric) query.fabric = fabric;
 
     const occasion = searchParams.get('occasion');
     if (occasion) query.occasion = occasion; // matches if the array contains it
@@ -66,12 +75,7 @@ export async function GET(req) {
     if (flag === 'active') query.isActiveSeller = true;
     if (flag === 'featured') query.isFeatured = true;
 
-    // "New Arrivals" hybrid fallback:
-    // 1. Try last 30 days within the current query scope (category/size/price already applied).
-    // 2. If nothing, widen to 90 days.
-    // 3. If still nothing, drop the date filter entirely — customer sees the
-    //    most recently added items regardless of age, sorted newest-first,
-    //    instead of an empty page.
+    // "New Arrivals" hybrid fallback: 30 days → 90 days → no date filter.
     if (flag === 'newarrival') {
       const cutoff30 = new Date();
       cutoff30.setDate(cutoff30.getDate() - 30);
@@ -89,8 +93,6 @@ export async function GET(req) {
       } else if (count90 > 0) {
         query.createdAt = { $gte: cutoff90 };
       }
-      // else: no date filter added — falls through to sort: newest below,
-      // returning the N most recent products in scope regardless of age.
     }
 
     const sort = searchParams.get('sort') || 'newest';
@@ -107,9 +109,9 @@ export async function GET(req) {
     const page = Number(searchParams.get('page') || 1);
     const limit = Number(limitParam || 24);
 
-    // `sizeChart` is included so any storefront view built off this list
-    // (e.g. a quick-view modal) can resolve the same product -> category
-    // size-guide fallback used on the full product detail page.
+    // `type` and `sizeChart` are included so storefront views built off this
+    // list (quick-view modals etc.) can resolve the product type and the
+    // category size-guide fallback.
     let productsQuery = Product.find(query)
       .populate('category', 'name slug type sizeChart')
       .sort(sortMap[sort] || sortMap.newest);
@@ -143,20 +145,26 @@ export const POST = requireAdmin(async (req) => {
       return NextResponse.json({ error: 'Product name and category are required' }, { status: 400 });
     }
 
+    const cat = await Category.findById(body.category).select('type');
+    if (!cat) return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    const type = resolveCategoryType(cat);
+
     const sku = await generateSku(body.category);
 
     const slug = body.slug ? slugify(body.slug, { lower: true }) : slugify(body.name, { lower: true });
     const exists = await Product.findOne({ slug });
     if (exists) return NextResponse.json({ error: 'A product with this slug already exists' }, { status: 409 });
 
+    // Lowest buyable price, counting per-size prices.
     const basePrice = body.variants?.length
-      ? Math.min(...body.variants.map((v) => v.price))
+      ? productMinPrice(body.variants)
       : body.basePrice || 0;
 
-    // body already carries material / finish / stoneType / piecesInSet /
-    // occasion / careInstructions / sizeChart / isReadyToShip when the admin
-    // form sends them — no extra handling needed here.
-    const product = await Product.create({ ...body, slug, sku, basePrice });
+    // Strips fields from the other product type (e.g. fabric on a bangle,
+    // material on a kurti) and cleans the ones that stay.
+    const clean = sanitizeByType(body, type);
+
+    const product = await Product.create({ ...clean, slug, sku, basePrice });
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
     console.error('POST /api/products error:', err);

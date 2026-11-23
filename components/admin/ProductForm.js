@@ -5,6 +5,14 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Upload, Loader2, X } from 'lucide-react';
 import { MATERIALS, FINISHES, STONE_TYPES, OCCASIONS, BANGLE_SIZES } from '@/lib/jewellery';
+import {
+  FABRICS,
+  CLOTHING_SIZES,
+  DRESS_OPTION_FIELDS,
+  resolveCategoryType,
+  normalizeOptions,
+  sanitizeByType,
+} from '@/lib/categoryType';
 
 // Palette: Primary #A67C00 · Secondary #D4AF37 · Background #FFFBF0 · Text #1A1A1A · Accent #F3E5B5
 // Keep in sync with the other admin pages.
@@ -25,7 +33,7 @@ function emptyVariant() {
     compareAtPrice: '',
     // Only used when the variant has NO sizes. '' = not tracked (unlimited).
     stock: '',
-    sizes: [{ size: '', stock: 0, sku: '' }],
+    sizes: [{ size: '', stock: 0, price: '', sku: '' }],
   };
 }
 
@@ -41,7 +49,7 @@ function normalizeVariants(variants) {
     price: v.price ?? '',
     compareAtPrice: v.compareAtPrice > 0 ? v.compareAtPrice : '',
     stock: v.stock ?? '',
-    sizes: (v.sizes || []).map((s) => ({ ...s, size: s.size || '', stock: s.stock ?? 0, sku: s.sku || '' })),
+    sizes: (v.sizes || []).map((s) => ({ ...s, size: s.size || '', stock: s.stock ?? 0, price: s.price > 0 ? s.price : '', sku: s.sku || '' })),
   }));
 }
 
@@ -92,10 +100,12 @@ const sectionHeadStyle = {
   marginBottom: '12px',
 };
 
+const linkBtnStyle = { fontSize: '12px', color: PRIMARY, fontFamily: 'sans-serif', fontWeight: '500', cursor: 'pointer' };
+
 const focusOn = (e) => (e.target.style.borderColor = PRIMARY);
 const focusOff = (e) => (e.target.style.borderColor = LINE);
 
-// Dropdown for a jewellery attribute. If the product already has a value
+// Dropdown for a product attribute. If the product already has a value
 // that isn't in the standard list (e.g. typed by hand earlier), it is kept
 // as an extra option so editing never silently drops it.
 function AttributeSelect({ label, hint, value, options, onChange, emptyLabel }) {
@@ -116,6 +126,58 @@ function AttributeSelect({ label, hint, value, options, onChange, emptyLabel }) 
         {hasCustom && <option value={value}>{value}</option>}
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
+    </div>
+  );
+}
+
+// Editable list of { label, price } rows — used for the dress sleeve /
+// zip / pant / shawl options. price is an optional extra charge in ₹.
+function OptionListEditor({ label, placeholder, items, onChange }) {
+  function setItem(i, field, value) {
+    onChange(items.map((it, idx) => (idx === i ? { ...it, [field]: value } : it)));
+  }
+  return (
+    <div className="sm:col-span-2">
+      <label style={labelStyle}>
+        {label} <span style={hintStyle}>(optional — extra charge in ₹, 0 = free)</span>
+      </label>
+      {items.map((it, i) => (
+        <div key={i} className="flex gap-2 mt-2 items-center">
+          <input
+            placeholder={placeholder}
+            style={{ ...inputStyle, marginTop: 0, flex: 1 }}
+            value={it.label}
+            onChange={(e) => setItem(i, 'label', e.target.value)}
+            onFocus={focusOn}
+            onBlur={focusOff}
+          />
+          <input
+            type="number"
+            min="0"
+            placeholder="Extra ₹"
+            style={{ ...inputStyle, marginTop: 0, width: '110px' }}
+            value={it.price}
+            onChange={(e) => setItem(i, 'price', e.target.value)}
+            onFocus={focusOn}
+            onBlur={focusOff}
+          />
+          <button
+            type="button"
+            onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+            style={{ color: INK_SOFT, cursor: 'pointer', flexShrink: 0 }}
+            aria-label="Remove option"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() => onChange([...items, { label: '', price: 0 }])}
+        style={{ ...linkBtnStyle, marginTop: '8px' }}
+      >
+        + Add option
+      </button>
     </div>
   );
 }
@@ -221,7 +283,12 @@ export default function ProductForm({ initial, productId }) {
   const [form, setForm] = useState(() => {
     const base = initial || {
       name: '', slug: '', sku: '', description: '', category: '', weight: '', tags: [],
-      material: '', finish: '', stoneType: '', piecesInSet: 1, occasion: [], careInstructions: '',
+      // jewellery
+      material: '', finish: '', stoneType: '', piecesInSet: 1,
+      // dress
+      fabric: '', sleeveOptions: [], zipOptions: [], pantOptions: [], shawlOptions: [],
+      // shared
+      occasion: [], careInstructions: '',
       variants: [emptyVariant()],
       sizeChart: [],
       videos: [],
@@ -238,6 +305,11 @@ export default function ProductForm({ initial, productId }) {
       finish: base.finish || '',
       stoneType: base.stoneType || '',
       piecesInSet: base.piecesInSet > 0 ? base.piecesInSet : 1,
+      fabric: base.fabric || '',
+      sleeveOptions: normalizeOptions(base.sleeveOptions),
+      zipOptions: normalizeOptions(base.zipOptions),
+      pantOptions: normalizeOptions(base.pantOptions),
+      shawlOptions: normalizeOptions(base.shawlOptions),
       occasion: base.occasion || [],
       careInstructions: base.careInstructions || '',
       sizeChart: normalizeSizeChart(base.sizeChart),
@@ -247,8 +319,7 @@ export default function ProductForm({ initial, productId }) {
       variants: normalizeVariants(base.variants),
     };
   });
-  // Tags are edited as raw text and parsed on save. Parsing on every
-  // keystroke made it impossible to type a comma (it was stripped instantly).
+  // Tags are edited as raw text and parsed on save.
   const [tagsText, setTagsText] = useState(() =>
     Array.isArray(initial?.tags) ? initial.tags.join(', ') : ''
   );
@@ -261,6 +332,16 @@ export default function ProductForm({ initial, productId }) {
   useEffect(() => {
     fetch('/api/categories').then((r) => r.json()).then((d) => setCategories(d.categories || []));
   }, []);
+
+  // The selected category decides which form fields are shown.
+  // null = no category chosen yet.
+  const selectedCategoryId = form.category?._id || form.category || '';
+  const selectedCategory =
+    categories.find((c) => c._id === selectedCategoryId) ||
+    (typeof form.category === 'object' && form.category?._id ? form.category : null);
+  const categoryType = selectedCategory ? resolveCategoryType(selectedCategory) : null;
+  const isDress = categoryType === 'dress';
+  const isJewellery = categoryType === 'jewellery';
 
   function update(field, value) { setForm((f) => ({ ...f, [field]: value })); }
 
@@ -318,21 +399,22 @@ export default function ProductForm({ initial, productId }) {
   function addSize(vIdx) {
     setForm((f) => {
       const variants = [...f.variants];
-      variants[vIdx] = { ...variants[vIdx], sizes: [...variants[vIdx].sizes, { size: '', stock: 0, sku: '' }] };
+      variants[vIdx] = { ...variants[vIdx], sizes: [...variants[vIdx].sizes, { size: '', stock: 0, price: '', sku: '' }] };
       return { ...f, variants };
     });
   }
 
-  // Adds 2.2 / 2.4 / 2.6 / 2.8 / 2.10 to a variant, skipping sizes it
-  // already has and replacing a single blank placeholder row.
-  function addStandardBangleSizes(vIdx) {
+  // Adds a standard size list to a variant (bangle sizes for jewellery,
+  // S–XXL for dresses), skipping sizes it already has and dropping blank
+  // placeholder rows.
+  function addStandardSizes(vIdx, list) {
     setForm((f) => {
       const variants = [...f.variants];
-      const current = variants[vIdx].sizes.filter((s) => s.size.trim() !== '' || Number(s.stock) > 0 || s.sku);
+      const current = variants[vIdx].sizes.filter((s) => s.size.trim() !== '' || Number(s.stock) > 0 || s.price || s.sku);
       const existing = new Set(current.map((s) => s.size));
-      const toAdd = BANGLE_SIZES
+      const toAdd = list
         .filter((size) => !existing.has(size))
-        .map((size) => ({ size, stock: 0, sku: '' }));
+        .map((size) => ({ size, stock: 0, price: '', sku: '' }));
       variants[vIdx] = { ...variants[vIdx], sizes: [...current, ...toAdd] };
       return { ...f, variants };
     });
@@ -349,8 +431,7 @@ export default function ProductForm({ initial, productId }) {
   function addVariant() { setForm((f) => ({ ...f, variants: [...f.variants, emptyVariant()] })); }
   function removeVariant(idx) { setForm((f) => ({ ...f, variants: f.variants.filter((_, i) => i !== idx) })); }
 
-  // Size guide — supports multiple images. Selecting several files at once
-  // uploads each in turn and appends every resulting URL to the array.
+  // Size guide — supports multiple images.
   async function handleSizeChartFilesChange(e) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -380,10 +461,7 @@ export default function ProductForm({ initial, productId }) {
     setForm((f) => ({ ...f, sizeChart: (f.sizeChart || []).filter((_, i) => i !== idx) }));
   }
 
-  // Videos — supports multiple files, uploaded one at a time through the
-  // same /api/upload endpoint used for images. Cloudinary's
-  // resource_type: 'auto' detects the file as video and returns a
-  // playable secure_url.
+  // Videos — supports multiple files, uploaded one at a time.
   async function handleVideoFilesChange(e) {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -416,6 +494,11 @@ export default function ProductForm({ initial, productId }) {
   async function submit(e) {
     e.preventDefault();
 
+    if (!categoryType) {
+      toast.error('Select a category first');
+      return;
+    }
+
     if (!form.weight || Number(form.weight) <= 0) {
       toast.error('Enter the weight in grams (used for shipping)');
       return;
@@ -435,6 +518,11 @@ export default function ProductForm({ initial, productId }) {
         toast.error(`Variant ${n}: compare-at price should be higher than the price`);
         return;
       }
+      const badSize = v.sizes.find((s) => s.size.trim() && String(s.price ?? '').trim() !== '' && !(Number(s.price) > 0));
+      if (badSize) {
+        toast.error(`Variant ${n}: size ${badSize.size.trim()} has an invalid price (leave blank to use the variant price)`);
+        return;
+      }
       const names = v.sizes.map((s) => s.size.trim().toLowerCase()).filter(Boolean);
       if (new Set(names).size !== names.length) {
         toast.error(`Variant ${n}: duplicate size names`);
@@ -443,17 +531,12 @@ export default function ProductForm({ initial, productId }) {
     }
 
     setSaving(true);
-    // Note: sku is intentionally omitted — it's auto-generated/managed server-side
-    // based on the product's category (see /api/products and /api/products/[id]).
+    // Note: sku is intentionally omitted — it's auto-generated/managed server-side.
     const payload = {
       ...form,
       category: form.category?._id || form.category,
       weight: Number(form.weight) || 0,
       tags: tagsText.split(',').map((t) => t.trim()).filter(Boolean),
-      material: (form.material || '').trim(),
-      finish: (form.finish || '').trim(),
-      stoneType: (form.stoneType || '').trim(),
-      piecesInSet: Math.max(1, Math.floor(Number(form.piecesInSet)) || 1),
       occasion: form.occasion || [],
       careInstructions: (form.careInstructions || '').trim(),
       seoTitle: (form.seoTitle || '').trim(),
@@ -463,7 +546,13 @@ export default function ProductForm({ initial, productId }) {
       variants: form.variants.map((v) => {
         const sizes = v.sizes
           .filter((s) => s.size.trim() !== '')
-          .map((s) => ({ ...s, size: s.size.trim(), stock: Math.max(0, Number(s.stock) || 0), sku: (s.sku || '').trim() }));
+          .map((s) => {
+            const entry = { ...s, size: s.size.trim(), stock: Math.max(0, Number(s.stock) || 0), sku: (s.sku || '').trim() };
+            // Per-size price is optional; blank means "use the variant price".
+            if (Number(s.price) > 0) entry.price = Number(s.price);
+            else delete entry.price;
+            return entry;
+          });
         const out = {
           ...v,
           price: Number(v.price),
@@ -471,8 +560,7 @@ export default function ProductForm({ initial, productId }) {
           images: v.images.filter(Boolean),
           sizes,
         };
-        // Variant-level stock only applies to size-less variants. Blank =
-        // not tracked (unlimited); for sized variants it is ignored.
+        // Variant-level stock only applies to size-less variants.
         if (sizes.length === 0 && String(v.stock ?? '').trim() !== '') {
           out.stock = Math.max(0, Number(v.stock) || 0);
         } else {
@@ -481,29 +569,27 @@ export default function ProductForm({ initial, productId }) {
         return out;
       }),
     };
-    delete payload.sku;
-    // Server-managed fields — never send them back. soldCount / rating /
-    // reviewCount in particular would overwrite live values with the stale
-    // copy loaded when the page opened.
-    delete payload._id;
-    delete payload.__v;
-    delete payload.createdAt;
-    delete payload.updatedAt;
-    delete payload.basePrice; // recomputed from variants on the server
-    delete payload.soldCount;
-    delete payload.rating;
-    delete payload.reviewCount;
-    // Clothing-only fields from older products — never send them back.
-    delete payload.fabric;
-    delete payload.sleeveOptions;
-    delete payload.zipOptions;
-    delete payload.pantOptions;
-    delete payload.shawlOptions;
+
+    // Keep only the fields that belong to this category's type
+    // (jewellery: material/finish/stone/set size, dress: fabric + options)
+    // and tidy them (trim text, drop blank option rows, coerce numbers).
+    const typed = sanitizeByType(payload, categoryType);
+
+    delete typed.sku;
+    // Server-managed fields — never send them back.
+    delete typed._id;
+    delete typed.__v;
+    delete typed.createdAt;
+    delete typed.updatedAt;
+    delete typed.basePrice; // recomputed from variants on the server
+    delete typed.soldCount;
+    delete typed.rating;
+    delete typed.reviewCount;
 
     const url = productId ? `/api/products/${productId}` : '/api/products';
     const method = productId ? 'PUT' : 'POST';
     try {
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(typed) });
       const data = await res.json();
       if (res.ok) {
         toast.success(productId ? 'Product updated' : 'Product created');
@@ -518,12 +604,23 @@ export default function ProductForm({ initial, productId }) {
     }
   }
 
+  const standardSizes = isDress ? CLOTHING_SIZES : BANGLE_SIZES;
+  const standardSizesLabel = isDress ? 'Add all sizes' : 'Add all bangle sizes';
+  const sizePlaceholder = isDress ? 'Size (e.g. S, M, XL, Free Size)' : 'Size (e.g. 2.4, Free Size)';
+
   return (
     <form onSubmit={submit} className="space-y-6">
 
       {/* Basic Info Card */}
       <div style={cardStyle}>
-        <p style={sectionHeadStyle}>Product Details</p>
+        <p style={sectionHeadStyle}>
+          Product Details
+          {categoryType && (
+            <span style={{ ...hintStyle, marginLeft: '8px', color: PRIMARY }}>
+              — {isDress ? 'Dress' : 'Jewellery'} form
+            </span>
+          )}
+        </p>
         <div style={{ height: '1px', background: LINE, marginBottom: '16px' }} />
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
@@ -548,21 +645,29 @@ export default function ProductForm({ initial, productId }) {
             />
           </div>
           <div>
-            <label style={labelStyle}>Category *</label>
+            <label style={labelStyle}>
+              Category * <span style={hintStyle}>(decides which fields appear below)</span>
+            </label>
             <select
               required
               style={inputStyle}
-              value={form.category?._id || form.category}
+              value={selectedCategoryId}
               onChange={(e) => update('category', e.target.value)}
               onFocus={focusOn}
               onBlur={focusOff}
             >
               <option value="">Select category</option>
-              {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}{resolveCategoryType(c) === 'dress' ? ' (Dress)' : ''}
+                </option>
+              ))}
             </select>
           </div>
           <div>
-            <label style={labelStyle}>Weight per set / piece (grams) *</label>
+            <label style={labelStyle}>
+              {isDress ? 'Weight per piece (grams) *' : 'Weight per set / piece (grams) *'}
+            </label>
             <input
               required
               type="number"
@@ -576,62 +681,103 @@ export default function ProductForm({ initial, productId }) {
             />
           </div>
 
-          {/* Jewellery attributes */}
-          <AttributeSelect
-            label="Material"
-            value={form.material}
-            options={MATERIALS}
-            onChange={(v) => update('material', v)}
-            emptyLabel="— Not specified —"
-          />
-          <AttributeSelect
-            label="Finish / plating"
-            value={form.finish}
-            options={FINISHES}
-            onChange={(v) => update('finish', v)}
-            emptyLabel="— Not specified —"
-          />
-          <AttributeSelect
-            label="Stone / decorative work"
-            hint="(optional)"
-            value={form.stoneType}
-            options={STONE_TYPES}
-            onChange={(v) => update('stoneType', v)}
-            emptyLabel="— None —"
-          />
-          <div>
-            <label style={labelStyle}>
-              Pieces in a set <span style={hintStyle}>(1 = sold singly, 4 = set of 4 bangles)</span>
-            </label>
-            <input
-              type="number"
-              min="1"
-              style={inputStyle}
-              value={form.piecesInSet}
-              onChange={(e) => update('piecesInSet', e.target.value)}
-              onFocus={focusOn}
-              onBlur={focusOff}
-            />
-          </div>
+          {!categoryType && (
+            <p
+              className="sm:col-span-2"
+              style={{ fontSize: '13px', color: INK_SOFT, fontFamily: 'sans-serif', background: DISABLED_BG, border: `1px dashed ${LINE}`, borderRadius: '4px', padding: '12px' }}
+            >
+              Choose a category to see the matching fields — jewellery categories show material, finish and stone
+              work; dress categories show fabric and sleeve / zip / pant / dupatta options.
+            </p>
+          )}
 
-          <div className="sm:col-span-2">
-            <label style={labelStyle}>
-              Occasion <span style={hintStyle}>(optional)</span>
-            </label>
-            <div className="flex flex-wrap gap-3 mt-2">
-              {OCCASIONS.map((opt) => (
-                <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer" style={{ color: INK, fontFamily: 'sans-serif' }}>
-                  <input
-                    type="checkbox"
-                    checked={(form.occasion || []).includes(opt)}
-                    onChange={() => toggleArrayValue('occasion', opt)}
-                    style={{ accentColor: PRIMARY, width: '15px', height: '15px' }}
-                  />
-                  {opt}
+          {/* ── Jewellery attributes ── */}
+          {isJewellery && (
+            <>
+              <AttributeSelect
+                label="Material"
+                value={form.material}
+                options={MATERIALS}
+                onChange={(v) => update('material', v)}
+                emptyLabel="— Not specified —"
+              />
+              <AttributeSelect
+                label="Finish / plating"
+                value={form.finish}
+                options={FINISHES}
+                onChange={(v) => update('finish', v)}
+                emptyLabel="— Not specified —"
+              />
+              <AttributeSelect
+                label="Stone / decorative work"
+                hint="(optional)"
+                value={form.stoneType}
+                options={STONE_TYPES}
+                onChange={(v) => update('stoneType', v)}
+                emptyLabel="— None —"
+              />
+              <div>
+                <label style={labelStyle}>
+                  Pieces in a set <span style={hintStyle}>(1 = sold singly, 4 = set of 4 bangles)</span>
                 </label>
+                <input
+                  type="number"
+                  min="1"
+                  style={inputStyle}
+                  value={form.piecesInSet}
+                  onChange={(e) => update('piecesInSet', e.target.value)}
+                  onFocus={focusOn}
+                  onBlur={focusOff}
+                />
+              </div>
+            </>
+          )}
+
+          {/* ── Dress attributes ── */}
+          {isDress && (
+            <>
+              <AttributeSelect
+                label="Fabric"
+                hint="(optional)"
+                value={form.fabric}
+                options={FABRICS}
+                onChange={(v) => update('fabric', v)}
+                emptyLabel="— Not specified —"
+              />
+              <div className="hidden sm:block" />
+              {DRESS_OPTION_FIELDS.map(({ key, label, placeholder }) => (
+                <OptionListEditor
+                  key={key}
+                  label={label}
+                  placeholder={placeholder}
+                  items={form[key] || []}
+                  onChange={(items) => update(key, items)}
+                />
               ))}
+            </>
+          )}
+
+          {/* ── Shared fields (shown once a category is chosen) ── */}
+          {categoryType && (
+            <div className="sm:col-span-2">
+              <label style={labelStyle}>
+                Occasion <span style={hintStyle}>(optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-3 mt-2">
+                {OCCASIONS.map((opt) => (
+                  <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer" style={{ color: INK, fontFamily: 'sans-serif' }}>
+                    <input
+                      type="checkbox"
+                      checked={(form.occasion || []).includes(opt)}
+                      onChange={() => toggleArrayValue('occasion', opt)}
+                      style={{ accentColor: PRIMARY, width: '15px', height: '15px' }}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="sm:col-span-2">
             <label style={labelStyle}>Tags (comma separated)</label>
@@ -661,7 +807,11 @@ export default function ProductForm({ initial, productId }) {
             <textarea
               style={{ ...inputStyle, resize: 'vertical' }}
               rows={2}
-              placeholder="e.g. Keep away from water and perfume. Store in the box provided."
+              placeholder={
+                isDress
+                  ? 'e.g. Gentle hand wash in cold water. Do not bleach. Iron on low heat.'
+                  : 'e.g. Keep away from water and perfume. Store in the box provided.'
+              }
               value={form.careInstructions}
               onChange={(e) => update('careInstructions', e.target.value)}
               onFocus={focusOn}
@@ -695,12 +845,11 @@ export default function ProductForm({ initial, productId }) {
             />
           </div>
 
-          {/* Size guide — one or more images. If left empty, the storefront
-              falls back to this product's category size guide. */}
+          {/* Size guide — falls back to the category size guide when empty. */}
           <div className="sm:col-span-2">
             <label style={labelStyle}>
               Size Guide <span style={hintStyle}>
-                (optional — e.g. how to measure your bangle size; shown as a gallery on the product page and falls back to the category's size guide if left empty)
+                (optional — {isDress ? 'e.g. a measurement chart for S–XXL' : 'e.g. how to measure your bangle size'}; shown as a gallery on the product page and falls back to the category's size guide if left empty)
               </span>
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-2">
@@ -731,13 +880,11 @@ export default function ProductForm({ initial, productId }) {
             <input ref={sizeChartFileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleSizeChartFilesChange} />
           </div>
 
-          {/* Product videos — optional, shown on the storefront PDP below
-              the image gallery. Accepts any video file; upload goes through
-              the same /api/upload endpoint as images. */}
+          {/* Product videos — optional */}
           <div className="sm:col-span-2">
             <label style={labelStyle}>
               Product Videos <span style={hintStyle}>
-                (optional — e.g. a wrist-show or sparkle clip, shown below the image gallery)
+                (optional — e.g. {isDress ? 'a try-on or fabric-flow clip' : 'a wrist-show or sparkle clip'}, shown below the image gallery)
               </span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
@@ -854,7 +1001,7 @@ export default function ProductForm({ initial, productId }) {
                   onChange={(e) => updateVariant(vIdx, 'colorHex', e.target.value)}
                 />
                 <input
-                  placeholder="Price ₹"
+                  placeholder="Default price ₹ (used when a size has none)"
                   type="number"
                   min="0"
                   style={inputStyle}
@@ -890,20 +1037,20 @@ export default function ProductForm({ initial, productId }) {
               <button
                 type="button"
                 onClick={() => addVariantImage(vIdx)}
-                style={{ fontSize: '12px', color: PRIMARY, fontFamily: 'sans-serif', fontWeight: '500', marginBottom: '12px', cursor: 'pointer' }}
+                style={{ ...linkBtnStyle, marginBottom: '12px' }}
               >
                 + Add another image
               </button>
 
               <p style={{ fontSize: '12px', color: INK_SOFT, fontFamily: 'sans-serif', fontWeight: '500', marginBottom: '6px' }}>
                 Sizes &amp; Stock{' '}
-                <span style={hintStyle}>(leave sizes blank for pieces that have no size)</span>
+                <span style={hintStyle}>(leave sizes blank for pieces that have no size; leave a size's price blank to use the variant's default price)</span>
               </p>
               {v.sizes.map((s, sIdx) => (
                 <div key={s._id || sIdx} className="flex gap-2 mb-2 items-center">
                   <input
-                    placeholder="Size (e.g. 2.4, Free Size)"
-                    style={{ ...inputStyle, width: '160px', marginTop: 0 }}
+                    placeholder={sizePlaceholder}
+                    style={{ ...inputStyle, width: '200px', marginTop: 0 }}
                     value={s.size}
                     onChange={(e) => updateSize(vIdx, sIdx, 'size', e.target.value)}
                     onFocus={focusOn}
@@ -916,6 +1063,17 @@ export default function ProductForm({ initial, productId }) {
                     style={{ ...inputStyle, width: '90px', marginTop: 0 }}
                     value={s.stock}
                     onChange={(e) => updateSize(vIdx, sIdx, 'stock', e.target.value)}
+                    onFocus={focusOn}
+                    onBlur={focusOff}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Price ₹"
+                    title="Price for this size. Leave blank to use the variant's default price."
+                    style={{ ...inputStyle, width: '110px', marginTop: 0 }}
+                    value={s.price ?? ''}
+                    onChange={(e) => updateSize(vIdx, sIdx, 'price', e.target.value)}
                     onFocus={focusOn}
                     onBlur={focusOff}
                   />
@@ -937,20 +1095,14 @@ export default function ProductForm({ initial, productId }) {
                 </div>
               ))}
               <div className="flex flex-wrap gap-4 mb-3">
-                <button
-                  type="button"
-                  onClick={() => addSize(vIdx)}
-                  style={{ fontSize: '12px', color: PRIMARY, fontFamily: 'sans-serif', fontWeight: '500', cursor: 'pointer' }}
-                >
+                <button type="button" onClick={() => addSize(vIdx)} style={linkBtnStyle}>
                   + Add size
                 </button>
-                <button
-                  type="button"
-                  onClick={() => addStandardBangleSizes(vIdx)}
-                  style={{ fontSize: '12px', color: PRIMARY, fontFamily: 'sans-serif', fontWeight: '500', cursor: 'pointer' }}
-                >
-                  + Add all bangle sizes ({BANGLE_SIZES.join(', ')})
-                </button>
+                {categoryType && (
+                  <button type="button" onClick={() => addStandardSizes(vIdx, standardSizes)} style={linkBtnStyle}>
+                    + {standardSizesLabel} ({standardSizes.join(', ')})
+                  </button>
+                )}
               </div>
 
               {/* Stock for variants with no sizes (schema: variant.stock) */}

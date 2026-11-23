@@ -14,18 +14,30 @@ const VariantSchema = new mongoose.Schema(
     // Ignored when the variant has size entries (stock lives on each size).
     stock: { type: Number, min: 0, default: undefined },
 
-    // `size` is the bangle size ("2.2", "2.4", "2.6", "2.8", "2.10") or
-    // "Free Size" for adjustable pieces (necklaces, earrings, kadas, rings).
+    // `size` is a bangle size ("2.2", "2.4" …) or "Free Size" for jewellery,
+    // and S / M / L / XL / XXL for dresses.
     // Leave this array empty for products that have no size at all.
     sizes: [
       {
         size: { type: String, required: true },
         stock: { type: Number, default: 0 },
+        // Optional price for this size. Not set / 0 = use the variant price.
+        price: { type: Number, min: 0, default: undefined },
         sku: { type: String }
       }
     ]
   },
   { _id: true }
+);
+
+// A selectable add-on for dresses, e.g. { label: 'Full sleeve', price: 150 }.
+// price is the extra charge (0 = free).
+const OptionSchema = new mongoose.Schema(
+  {
+    label: { type: String, required: true, trim: true },
+    price: { type: Number, default: 0, min: 0 }
+  },
+  { _id: false }
 );
 
 const ProductSchema = new mongoose.Schema(
@@ -36,41 +48,40 @@ const ProductSchema = new mongoose.Schema(
     description: { type: String, default: '' },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
 
-    // ── Jewellery attributes (all optional; shown on the product page) ──
-    // Base material, e.g. "Silk Thread", "Lac", "Brass".
-    material: { type: String, default: '', trim: true },
-    // Finish / plating, e.g. "Gold Plated", "Oxidised".
-    finish: { type: String, default: '', trim: true },
-    // Stone or decorative work, e.g. "Kundan", "Pearls".
-    stoneType: { type: String, default: '', trim: true },
-    // How many pieces come in one purchase unit (a set of 4 bangles = 4).
-    piecesInSet: { type: Number, default: 1, min: 1 },
+    // ── Jewellery attributes (only used when category.type === 'jewellery') ──
+    material: { type: String, default: '', trim: true },     // "Silk Thread", "Lac", "Brass"
+    finish: { type: String, default: '', trim: true },       // "Gold Plated", "Oxidised"
+    stoneType: { type: String, default: '', trim: true },    // "Kundan", "Pearls"
+    piecesInSet: { type: Number, default: 1, min: 1 },       // a set of 4 bangles = 4
+
+    // ── Dress attributes (only used when category.type === 'dress') ──
+    fabric: { type: String, default: '', trim: true },       // "Cotton", "Georgette"
+    sleeveOptions: [OptionSchema],
+    zipOptions: [OptionSchema],
+    pantOptions: [OptionSchema],
+    shawlOptions: [OptionSchema],
+
+    // ── Shared attributes ──
     // Occasions this piece suits: Daily Wear, Festive, Wedding, ...
     occasion: [{ type: String }],
     // Free-text care instructions shown on the product page.
     careInstructions: { type: String, default: '' },
 
     // Shipping weight of ONE purchase unit (one piece / set / pair) in
-    // grams. Used to compute order weight for shipping. 0 = not set →
-    // falls back to Settings.weightPerPiece.
+    // grams. 0 = not set → falls back to Settings.weightPerPiece.
     weight: { type: Number, default: 0, min: 0 },
 
     tags: [{ type: String }],
     variants: [VariantSchema],
 
-    // One or more optional size-guide images (e.g. how to measure your
-    // bangle size). If empty, the storefront falls back to this product's
-    // category.sizeChart instead.
+    // Optional size-guide images. If empty, the storefront falls back to
+    // this product's category.sizeChart instead.
     sizeChart: [{ type: String }],
 
-    // One or more optional product videos (e.g. a wrist-show or sparkle
-    // clip). Shown on the storefront PDP below the image gallery. Uploaded
-    // through the same /api/upload endpoint as images — Cloudinary's
-    // resource_type: 'auto' detects and stores it as a video asset.
+    // Optional product videos, shown on the PDP below the image gallery.
     videos: [{ type: String }],
 
-    // When true, the storefront shows a highlighted "Ready to Ship" badge
-    // below the product title.
+    // When true, the storefront shows a highlighted "Ready to Ship" badge.
     isReadyToShip: { type: Boolean, default: false },
 
     basePrice: { type: Number, required: true }, // used for listing/sorting
